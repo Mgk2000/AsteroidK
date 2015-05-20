@@ -3,3 +3,8 @@
 FlyingObject::FlyingObject()
 {
 }
+
+FlyingObject::~FlyingObject()
+{
+
+}
