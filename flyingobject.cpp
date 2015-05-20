@@ -8,3 +8,8 @@ FlyingObject::~FlyingObject()
 {
 
 }
+
+void FlyingObject::init()
+{
+
+}

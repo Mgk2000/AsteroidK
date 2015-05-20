@@ -6,6 +6,7 @@ class FlyingObject
 public:
 	FlyingObject();
 	virtual ~FlyingObject();
+	virtual void init();
 };
 
 #endif // FLYINGOBJECT_H
