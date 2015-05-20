@@ -13,3 +13,8 @@ void FlyingObject::init()
 {
 
 }
+
+void FlyingObject::draw()
+{
+
+}
