@@ -6,7 +6,8 @@ TEMPLATE = app
 SOURCES += main.cpp \
     Kgeometryengine.cpp \
     Kmainwidget.cpp \
-    flyingobject.cpp
+    flyingobject.cpp \
+    ship.cpp
 
 qtHaveModule(opengl) {
     QT += opengl
@@ -31,4 +32,5 @@ OTHER_FILES += \
 HEADERS += \
     Kgeometryengine.h \
     Kmainwidget.h \
-    flyingobject.h
+    flyingobject.h \
+    ship.h
