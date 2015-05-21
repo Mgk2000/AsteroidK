@@ -27,7 +27,9 @@ INSTALLS += target
 
 OTHER_FILES += \
     KVShader.vsh \
-    KFShader.fsh
+    KFShader.fsh \
+    vflyingshader.vsh \
+    fflyingshader.fsh
 
 HEADERS += \
     Kgeometryengine.h \

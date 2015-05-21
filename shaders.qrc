@@ -4,5 +4,7 @@
         <file>fshader.glsl</file>
         <file>KFShader.fsh</file>
         <file>KVShader.vsh</file>
+        <file>fflyingshader.fsh</file>
+        <file>vflyingshader.vsh</file>
     </qresource>
 </RCC>

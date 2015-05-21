@@ -51,17 +51,18 @@
 #include <QBasicTimer>
 #include <QGLShaderProgram>
 
-
+#include "ship.h"
 class GeometryEngine;
 
-class MainWidget : public QGLWidget, protected QGLFunctions
+class View : public QGLWidget, protected QGLFunctions
 {
 	Q_OBJECT
 
 public:
-	explicit MainWidget(QWidget *parent = 0);
-	~MainWidget();
-
+	explicit View(QWidget *parent = 0);
+	~View();
+	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
+	QMatrix4x4 projection;
 protected:
 	void mousePressEvent(QMouseEvent *e);
 	void mouseReleaseEvent(QMouseEvent *e);
@@ -76,18 +77,18 @@ protected:
 
 private:
 	QBasicTimer timer;
-	QGLShaderProgram program1, program2;
+	QGLShaderProgram program1, program2, _flyingprogram;
 	GeometryEngine geometries;
 
 	GLuint texture;
 
-	QMatrix4x4 projection;
 
 	QVector2D mousePressPosition;
 	QVector3D rotationAxis;
 	qreal angularSpeed;
 	QQuaternion rotation;
 	void paintGL1();
+	Ship ship;
 };
 
 #endif // MAINWIDGET_H

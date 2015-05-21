@@ -51,7 +51,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("cube");
 	app.setApplicationVersion("0.1");
 #ifndef QT_NO_OPENGL
-	MainWidget widget;
+	View widget;
 	widget.show();
 #else
 	QLabel note("OpenGL Support required");

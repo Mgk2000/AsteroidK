@@ -44,29 +44,31 @@
 
 #include <math.h>
 
-MainWidget::MainWidget(QWidget *parent) :
+View::View(QWidget *parent) :
 	QGLWidget(parent),
-	angularSpeed(0)
+	angularSpeed(0), ship(this)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
 //	setAutoBufferSwap(false);
+//	setHeight(800);
+	this->setGeometry(geometry().x() + 100, geometry().y() +200, 480, 800);
 
 }
 
-MainWidget::~MainWidget()
+View::~View()
 {
 	deleteTexture(texture);
 }
 
 //! [0]
-void MainWidget::mousePressEvent(QMouseEvent *e)
+void View::mousePressEvent(QMouseEvent *e)
 {
 	// Save mouse press position
 	mousePressPosition = QVector2D(e->localPos());
 }
 
-void MainWidget::mouseReleaseEvent(QMouseEvent *e)
+void View::mouseReleaseEvent(QMouseEvent *e)
 {
 	// Mouse release position - mouse press position
 	QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
@@ -87,7 +89,7 @@ void MainWidget::mouseReleaseEvent(QMouseEvent *e)
 //! [0]
 
 //! [1]
-void MainWidget::timerEvent(QTimerEvent *)
+void View::timerEvent(QTimerEvent *)
 {
 	// Decrease angular speed (friction)
 	angularSpeed *= 0.99;
@@ -105,7 +107,7 @@ void MainWidget::timerEvent(QTimerEvent *)
 }
 //! [1]
 
-void MainWidget::initializeGL()
+void View::initializeGL()
 {
 //	return;
 	initializeGLFunctions();
@@ -125,33 +127,24 @@ void MainWidget::initializeGL()
 	geometries.init();
 
 	// Use QBasicTimer because its faster than QTimer
+	ship.init();
 	timer.start(12, this);
 }
 
 //! [3]
-void MainWidget::initShaders()
+void View::initShaders()
 {
 	// Compile vertex shader
-//	if (!program.addShaderFromSourceFile(QGLShader::Vertex, ":/vshader.glsl"))
 	if (!program1.addShaderFromSourceFile(QGLShader::Vertex, ":/KVShader.vsh"))
 		close();
 
 	// Compile fragment shader
-//	if (!program.addShaderFromSourceFile(QGLShader::Fragment, ":/fshader.glsl"))
 	if (!program1.addShaderFromSourceFile(QGLShader::Fragment, ":/KFShader.fsh"))
 		close();
-
-/*	// Bind shader pipeline for use
-	if (!program.bind())
-		close();*/
 
 	// Link shader pipeline
 	if (!program1.link())
 		close();
-
-	// Bind shader pipeline for use
-//	if (!program1.bind())
-//		close();
 
 	// Compile vertex shader
 	if (!program2.addShaderFromSourceFile(QGLShader::Vertex, ":/vshader.glsl"))
@@ -163,23 +156,27 @@ void MainWidget::initShaders()
 //	if (!program1.addShaderFromSourceFile(QGLShader::Fragment, ":/KFShader.fsh"))
 		close();
 
-/*	// Bind shader pipeline for use
-	if (!program.bind())
-		close();*/
-
 	// Link shader pipeline
 	if (!program2.link())
 		close();
-	return;
 
-	// Bind shader pipeline for use
-//	if (!program2.bind())
-//		close();
+	// Compile vertex shader
+	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Vertex, ":/vflyingshader.vsh"))
+		close();
+
+	// Compile fragment shader
+	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Fragment, ":/fflyingshader.fsh"))
+		close();
+
+	// Link shader pipeline
+	if (!_flyingprogram.link())
+		close();
+
 }
 //! [3]
 
 //! [4]
-void MainWidget::initTextures()
+void View::initTextures()
 {
 	// Load cube.png image
 	glEnable(GL_TEXTURE_2D);
@@ -200,7 +197,7 @@ void MainWidget::initTextures()
 //! [4]
 
 //! [5]
-void MainWidget::resizeGL(int w, int h)
+void View::resizeGL(int w, int h)
 {
 	// Set OpenGL viewport to cover whole widget
 	glViewport(0, 0, w, h);
@@ -219,7 +216,7 @@ void MainWidget::resizeGL(int w, int h)
 	projection.perspective(fov, aspect, zNear, zFar);
 }
 //! [5]
-void MainWidget::paintGL1()
+void View::paintGL1()
 {
 	// Clear color and depth buffer
 //	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -239,15 +236,18 @@ void MainWidget::paintGL1()
 
 	// Draw cube geometry
 	geometries.drawCubeGeometry(&program2);
+
+	ship.draw();
 }
 
-void MainWidget::paintGL()
+void View::paintGL()
 {
 
 	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //! [6]
+#if 0
 	// Calculate model view transformation
 	QMatrix4x4 matrix1;
 	matrix1.translate(01.0, 01.0, -5.0);
@@ -285,5 +285,8 @@ void MainWidget::paintGL()
 	// Draw cube geometry
 	geometries.drawCubeGeometry(&program1);
 	program1.release();
+#endif
+
+	ship.draw();
 
 }

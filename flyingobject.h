@@ -1,14 +1,27 @@
 #ifndef FLYINGOBJECT_H
 #define FLYINGOBJECT_H
-
-class FlyingObject
+#include <QVector2D>
+#include <QVector3D>
+#include <QGLFunctions>
+#include <QGLShaderProgram>
+class View;
+class FlyingObject : protected QGLFunctions
 {
 public:
-	FlyingObject();
+	FlyingObject(View* _view);
 	virtual ~FlyingObject();
 	virtual void init();
 	virtual void draw();
-
+protected:
+	float x,y,angle;
+	GLuint vboIds[2];
+	QVector3D* vertices;
+	int nvertices;
+	GLushort* indices;
+	int nindices;
+	QVector4D color;
+	void fill_vbos();
+	View* view;
 };
 
 #endif // FLYINGOBJECT_H
