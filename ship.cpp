@@ -14,9 +14,9 @@ void Ship::init()
 {
 	FlyingObject::init();
 	x =0.f;
-	y=-1.f;
+	y=-0.5f;
 	angle = 0.f;
-	width = 0.5;
+	width = 0.2;
 	vertices = new QVector3D[6];
 	vertices[0] = QVector3D (-width /2 , 0, 0);
 	vertices[1] = QVector3D (width /2, 0, 0);

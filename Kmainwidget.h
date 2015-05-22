@@ -92,6 +92,9 @@ private:
 	QQuaternion rotation;
 	void paintGL1();
 	Ship ship;
+	float aspect;
+	bool testShipTouched(int x, int y) const;
+	bool shipDragging;
 };
 
 #endif // MAINWIDGET_H

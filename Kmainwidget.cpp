@@ -46,7 +46,7 @@
 
 View::View(QWidget *parent) :
 	QGLWidget(parent),
-	angularSpeed(0), ship(this)
+	angularSpeed(0), ship(this), shipDragging(false)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
@@ -85,17 +85,32 @@ void View::mouseReleaseEvent(QMouseEvent *e)
 
 	// Increase angular speed
 	angularSpeed += acc;
+	shipDragging = false;
 }
-
+bool View::testShipTouched(int x, int y) const
+{
+	float xxx = 2.0 * (x - width()/2) / width() * aspect;
+	const float delta = 0.15;
+	float dx = xxx-ship.X();
+	if (dx > delta || dx < -delta)
+		return false;
+	float yyy = - 2.0 * (y - height()/2) * 1.0 / height();
+	float dy = yyy-ship.Y();
+	if (dy > delta || dy < -delta)
+		return false;
+	return true;
+}
 void View::mouseMoveEvent(QMouseEvent *e)
 {
-//	if (e->button() == Qt::LeftButton)
+	if (testShipTouched(e->localPos().x(), e->localPos().y()) || shipDragging)
 	{
+		shipDragging = true;
 		QVector2D diff = QVector2D(e->localPos());
 
 		QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-		float xxx = 2 * (e->localPos().x() - width()/2) * 1.0 / width();
+		float xxx = 2 * (e->localPos().x() - width()/2) * 1.0 / width() * aspect;
 		ship.setX(xxx);
+		updateGL();
 		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() <<  "x=" << n.x() << "  ShipX=" << ship.X();
 
 	}
@@ -131,7 +146,7 @@ void View::initializeGL()
 
 //! [2]
 	// Enable depth buffer
-	glEnable(GL_DEPTH_TEST);
+//	glEnable(GL_DEPTH_TEST);
 //	glDisable(GL_DEPTH_TEST);
 
 	// Enable back face culling
@@ -217,8 +232,8 @@ void View::resizeGL(int w, int h)
 	glViewport(0, 0, w, h);
 
 	// Calculate aspect ratio
-	qreal aspect = qreal(w) / qreal(h ? h : 1);
-
+	//qreal aspect = qreal(w) / qreal(h ? h : 1);
+	aspect = w * 1.0 / h;
 	// Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
 	const qreal zNear = 3.0, zFar = 10.0, fov = 45.0;
 
@@ -227,7 +242,9 @@ void View::resizeGL(int w, int h)
 
 
 	// Set perspective projection
-	projection.perspective(fov, aspect, zNear, zFar);
+//	projection.perspective(fov, aspect, zNear, zFar);
+//	projection.ortho(0.0,  480.0 , 0.0,800.0, 1999, -1999 );
+	projection.ortho(- aspect, aspect , -1.0, 1.0 , -1999., 1999. );
 }
 //! [5]
 void View::paintGL1()
@@ -253,6 +270,8 @@ void View::paintGL1()
 
 	ship.draw();
 }
+
+
 
 void View::paintGL()
 {

@@ -22,7 +22,7 @@ void FlyingObject::init()
 void FlyingObject::draw()
 {
 	QMatrix4x4 matrix3;
-	matrix3.translate(x, y, -5.0);
+	matrix3.translate(x, y, 0);
 	bool b = view->flyingprogram().bind();
 	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix3);
 	GLint err = glGetError();
