@@ -86,6 +86,20 @@ void View::mouseReleaseEvent(QMouseEvent *e)
 	// Increase angular speed
 	angularSpeed += acc;
 }
+
+void View::mouseMoveEvent(QMouseEvent *e)
+{
+//	if (e->button() == Qt::LeftButton)
+	{
+		QVector2D diff = QVector2D(e->localPos());
+
+		QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
+		float xxx = 2 * (e->localPos().x() - width()/2) * 1.0 / width();
+		ship.setX(xxx);
+		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() <<  "x=" << n.x() << "  ShipX=" << ship.X();
+
+	}
+}
 //! [0]
 
 //! [1]

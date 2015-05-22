@@ -8,6 +8,7 @@ public:
 	Ship(View* view);
 	virtual ~Ship();
 	void init();
+	void setX(float _x);
 private:
 	float width;
 };

@@ -36,3 +36,8 @@ void Ship::init()
 
 
 }
+
+void Ship::setX(float _x)
+{
+	x=_x;
+}

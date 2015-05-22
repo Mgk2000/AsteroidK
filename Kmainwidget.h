@@ -66,6 +66,8 @@ public:
 protected:
 	void mousePressEvent(QMouseEvent *e);
 	void mouseReleaseEvent(QMouseEvent *e);
+	void mouseMoveEvent(QMouseEvent *);
+
 	void timerEvent(QTimerEvent *e);
 
 	void initializeGL();
@@ -84,6 +86,7 @@ private:
 
 
 	QVector2D mousePressPosition;
+	float shiftX;
 	QVector3D rotationAxis;
 	qreal angularSpeed;
 	QQuaternion rotation;

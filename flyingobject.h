@@ -12,6 +12,9 @@ public:
 	virtual ~FlyingObject();
 	virtual void init();
 	virtual void draw();
+	float X() const {return x;}
+	float Y() const {return y;}
+
 protected:
 	float x,y,angle;
 	GLuint vboIds[2];
