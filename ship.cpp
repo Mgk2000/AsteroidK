@@ -3,6 +3,7 @@
 
 Ship::Ship(View* _view): FlyingObject(_view)
 {
+	init();
 }
 
 Ship::~Ship()
@@ -12,7 +13,7 @@ Ship::~Ship()
 
 void Ship::init()
 {
-	FlyingObject::init();
+	//FlyingObject::init();
 	x =0.f;
 	y=-0.5f;
 	angle = 0.f;
@@ -33,8 +34,6 @@ void Ship::init()
 	nindices = 6;
 	fill_vbos();
 	color = QVector4D(0.0, 0.7, 0.0, 1.0);
-
-
 }
 
 void Ship::setX(float _x)

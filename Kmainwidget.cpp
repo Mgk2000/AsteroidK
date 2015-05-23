@@ -43,10 +43,12 @@
 #include <QMouseEvent>
 
 #include <math.h>
+#include "ship.h"
+#include "gun.h"
 
 View::View(QWidget *parent) :
 	QGLWidget(parent),
-	angularSpeed(0), ship(this), shipDragging(false)
+	 shipDragging(false)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
@@ -58,44 +60,27 @@ View::View(QWidget *parent) :
 
 View::~View()
 {
-	deleteTexture(texture);
 }
 
 //! [0]
+#if 0
 void View::mousePressEvent(QMouseEvent *e)
 {
-	// Save mouse press position
-	mousePressPosition = QVector2D(e->localPos());
 }
-
+#endif
 void View::mouseReleaseEvent(QMouseEvent *e)
 {
-	// Mouse release position - mouse press position
-	QVector2D diff = QVector2D(e->localPos()) - mousePressPosition;
-
-	// Rotation axis is perpendicular to the mouse position difference
-	// vector
-	QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-
-	// Accelerate angular speed relative to the length of the mouse sweep
-	qreal acc = diff.length() / 100.0;
-
-	// Calculate new rotation axis as weighted sum
-	rotationAxis = (rotationAxis * angularSpeed + n * acc).normalized();
-
-	// Increase angular speed
-	angularSpeed += acc;
 	shipDragging = false;
 }
 bool View::testShipTouched(int x, int y) const
 {
 	float xxx = 2.0 * (x - width()/2) / width() * aspect;
 	const float delta = 0.15;
-	float dx = xxx-ship.X();
+	float dx = xxx-ship->X();
 	if (dx > delta || dx < -delta)
 		return false;
 	float yyy = - 2.0 * (y - height()/2) * 1.0 / height();
-	float dy = yyy-ship.Y();
+	float dy = yyy-ship->Y();
 	if (dy > delta || dy < -delta)
 		return false;
 	return true;
@@ -109,9 +94,9 @@ void View::mouseMoveEvent(QMouseEvent *e)
 
 		QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
 		float xxx = 2 * (e->localPos().x() - width()/2) * 1.0 / width() * aspect;
-		ship.setX(xxx);
+		ship->setX(xxx);
 		updateGL();
-		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() <<  "x=" << n.x() << "  ShipX=" << ship.X();
+		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() <<  "x=" << n.x() << "  ShipX=" << ship->X();
 
 	}
 }
@@ -120,19 +105,7 @@ void View::mouseMoveEvent(QMouseEvent *e)
 //! [1]
 void View::timerEvent(QTimerEvent *)
 {
-	// Decrease angular speed (friction)
-	angularSpeed *= 0.99;
-
-	// Stop rotation when speed goes below threshold
-	if (angularSpeed < 0.01) {
-		angularSpeed = 0.0;
-	} else {
-		// Update rotation
-		rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
-
-		// Update scene
-		updateGL();
-	}
+	updateGL();
 }
 //! [1]
 
@@ -142,7 +115,6 @@ void View::initializeGL()
 	initializeGLFunctions();
 	qglClearColor(Qt::black);
 	initShaders();
-	initTextures();
 
 //! [2]
 	// Enable depth buffer
@@ -150,45 +122,21 @@ void View::initializeGL()
 //	glDisable(GL_DEPTH_TEST);
 
 	// Enable back face culling
-	glEnable(GL_CULL_FACE);
+//	glEnable(GL_CULL_FACE);
 //! [2]
 
-	geometries.init();
+//	geometries.init();
 
 	// Use QBasicTimer because its faster than QTimer
-	ship.init();
+	ship = new Ship (this);
+	//ship->init();
+	gun = new Gun (this);
 	timer.start(12, this);
 }
 
 //! [3]
 void View::initShaders()
 {
-	// Compile vertex shader
-	if (!program1.addShaderFromSourceFile(QGLShader::Vertex, ":/KVShader.vsh"))
-		close();
-
-	// Compile fragment shader
-	if (!program1.addShaderFromSourceFile(QGLShader::Fragment, ":/KFShader.fsh"))
-		close();
-
-	// Link shader pipeline
-	if (!program1.link())
-		close();
-
-	// Compile vertex shader
-	if (!program2.addShaderFromSourceFile(QGLShader::Vertex, ":/vshader.glsl"))
-//	if (!program1.addShaderFromSourceFile(QGLShader::Vertex, ":/KVShader.vsh"))
-		close();
-
-	// Compile fragment shader
-	if (!program2.addShaderFromSourceFile(QGLShader::Fragment, ":/fshader.glsl"))
-//	if (!program1.addShaderFromSourceFile(QGLShader::Fragment, ":/KFShader.fsh"))
-		close();
-
-	// Link shader pipeline
-	if (!program2.link())
-		close();
-
 	// Compile vertex shader
 	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Vertex, ":/vflyingshader.vsh"))
 		close();
@@ -204,28 +152,6 @@ void View::initShaders()
 }
 //! [3]
 
-//! [4]
-void View::initTextures()
-{
-	// Load cube.png image
-	glEnable(GL_TEXTURE_2D);
-	texture = bindTexture(QImage(":/AsteroidK.png"));
-
-	// Set nearest filtering mode for texture minification
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-	// Set bilinear filtering mode for texture magnification
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-	// Wrap texture coordinates by repeating
-	// f.ex. texture coordinate (1.1, 1.2) is same as (0.1, 0.2)
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-}
-//! [4]
-
-//! [5]
 void View::resizeGL(int w, int h)
 {
 	// Set OpenGL viewport to cover whole widget
@@ -235,7 +161,7 @@ void View::resizeGL(int w, int h)
 	//qreal aspect = qreal(w) / qreal(h ? h : 1);
 	aspect = w * 1.0 / h;
 	// Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-	const qreal zNear = 3.0, zFar = 10.0, fov = 45.0;
+//	const qreal zNear = 3.0, zFar = 10.0, fov = 45.0;
 
 	// Reset projection
 	projection.setToIdentity();
@@ -245,34 +171,9 @@ void View::resizeGL(int w, int h)
 //	projection.perspective(fov, aspect, zNear, zFar);
 //	projection.ortho(0.0,  480.0 , 0.0,800.0, 1999, -1999 );
 	projection.ortho(- aspect, aspect , -1.0, 1.0 , -1999., 1999. );
+
 }
 //! [5]
-void View::paintGL1()
-{
-	// Clear color and depth buffer
-//	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//! [6]
-	// Calculate model view transformation
-	QMatrix4x4 matrix;
-	matrix.translate(-1.0, -1.0, -5.0);
-	matrix.rotate(rotation);
-
-	// Set modelview-projection matrix
-	program2.setUniformValue("mvp_matrix", projection * matrix);
-//! [6]
-
-	// Use texture unit 0 which contains cube.png
-	program2.setUniformValue("texture", 0);
-
-	// Draw cube geometry
-	geometries.drawCubeGeometry(&program2);
-
-	ship.draw();
-}
-
-
-
 void View::paintGL()
 {
 
@@ -280,46 +181,6 @@ void View::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 //! [6]
-#if 0
-	// Calculate model view transformation
-	QMatrix4x4 matrix1;
-	matrix1.translate(01.0, 01.0, -5.0);
-	matrix1.rotate(rotation);
-
-	// Set modelview-projection matrix
-		if (!program1.bind())
-			close();
-
-	program1.setUniformValue("mvp_matrix", projection * matrix1);
-//! [6]
-
-	// Use texture unit 0 which contains cube.png
-//	program.setUniformValue("texture", 0);
-
-	// Draw cube geometry
-	geometries.drawCubeGeometry(&program1);
-	program1.release();
-
-
-	QMatrix4x4 matrix2;
-	matrix2.translate(-01.0, -01.0, -5.0);
-	matrix2.rotate(rotation);
-
-	// Set modelview-projection matrix
-		if (!program1.bind())
-			close();
-
-	program1.setUniformValue("mvp_matrix", projection * matrix2);
-//! [6]
-
-	// Use texture unit 0 which contains cube.png
-	//program1.setUniformValue("texture", 0);
-
-	// Draw cube geometry
-	geometries.drawCubeGeometry(&program1);
-	program1.release();
-#endif
-
-	ship.draw();
-
+	ship->draw();
+	gun->draw();
 }

@@ -2,10 +2,13 @@
 #include "Kmainwidget.h"
 FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view)
 {
+	initializeGLFunctions();
+	glGenBuffers(2, vboIds);
 }
 
 FlyingObject::~FlyingObject()
 {
+	glDeleteBuffers(2, vboIds);
 	if (vertices)
 		delete[] vertices;
 	if (indices)
@@ -14,8 +17,8 @@ FlyingObject::~FlyingObject()
 
 void FlyingObject::init()
 {
-	initializeGLFunctions();
-	glGenBuffers(2, vboIds);
+//	initializeGLFunctions();
+//	glGenBuffers(2, vboIds);
 
 }
 

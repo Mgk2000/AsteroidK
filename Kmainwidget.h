@@ -41,8 +41,6 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
-#include "Kgeometryengine.h"
-
 #include <QGLWidget>
 #include <QGLFunctions>
 #include <QMatrix4x4>
@@ -51,7 +49,9 @@
 #include <QBasicTimer>
 #include <QGLShaderProgram>
 
-#include "ship.h"
+class Ship;
+class Gun;
+#include "gun.h"
 class GeometryEngine;
 
 class View : public QGLWidget, protected QGLFunctions
@@ -63,8 +63,9 @@ public:
 	~View();
 	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
 	QMatrix4x4 projection;
-protected:
-	void mousePressEvent(QMouseEvent *e);
+	float fieldWidth() const {return aspect;}
+private:
+//	void mousePressEvent(QMouseEvent *e);
 	void mouseReleaseEvent(QMouseEvent *e);
 	void mouseMoveEvent(QMouseEvent *);
 
@@ -75,23 +76,17 @@ protected:
 	void paintGL();
 
 	void initShaders();
-	void initTextures();
-
 private:
 	QBasicTimer timer;
-	QGLShaderProgram program1, program2, _flyingprogram;
-	GeometryEngine geometries;
+	QGLShaderProgram  _flyingprogram;
 
-	GLuint texture;
+//	GLuint texture;
 
 
 	QVector2D mousePressPosition;
-	float shiftX;
-	QVector3D rotationAxis;
-	qreal angularSpeed;
-	QQuaternion rotation;
-	void paintGL1();
-	Ship ship;
+//	float shiftX;
+	Ship* ship;
+	Gun * gun;
 	float aspect;
 	bool testShipTouched(int x, int y) const;
 	bool shipDragging;

@@ -17,7 +17,7 @@ public:
 
 protected:
 	float x,y,angle;
-	GLuint vboIds[2];
+	uint vboIds[2];
 	QVector3D* vertices;
 	int nvertices;
 	GLushort* indices;
