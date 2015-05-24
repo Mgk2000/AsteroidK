@@ -49,6 +49,7 @@
 #include <QBasicTimer>
 #include <QGLShaderProgram>
 #include <list>
+#include "points.h"
 #include "random.h"
 class Ship;
 class Gun;
@@ -77,6 +78,7 @@ public:
 	float frandom (float lo, float hi) {return _random.frandom(lo, hi);}
 	int irandom(int lo, int hi) {return _random.irandom(lo, hi);}
 
+	void checkShoots();
 private:
 	bool event(QEvent *e);
 	void mousePressEvent(QMouseEvent *e);

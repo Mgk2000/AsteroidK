@@ -11,7 +11,8 @@ SOURCES += main.cpp \
     math_helper.cpp \
     bullet.cpp \
     random.cpp \
-    asteroid.cpp
+    asteroid.cpp \
+    intersect.cpp
 
 qtHaveModule(opengl) {
     QT += opengl
@@ -43,4 +44,6 @@ HEADERS += \
     math_helper.h \
     bullet.h \
     random.h \
-    asteroid.h
+    asteroid.h \
+    intersect.h \
+    points.h

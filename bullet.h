@@ -11,6 +11,8 @@ public:
 	virtual ~Bullet();
 	void init();
 	void draw();
+	Point top() const;
+	bool out() const;
 private:
 
 };

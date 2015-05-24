@@ -1,7 +1,7 @@
 #include "asteroid.h"
 #include <math.h>
 #include "view.h"
-
+#include "intersect.h"
 Asteroid::Asteroid(View * _view) : FlyingObject (_view)
 {
 	init();
@@ -15,24 +15,27 @@ Asteroid::~Asteroid()
 
 void Asteroid::init()
 {
-	x = view->frandom(-0.2, 0.2);
+	x = view->frandom(-1.0, 1.0);
 	y = 1.1;
 	angle =  view->frandom(M_PI * 0.8, M_PI * 1.2);
 	speed = 0.001;
-	float qqq = sin(M_PI /6);
+	//float qqq = sin(M_PI /6);
 	vx = speed* sin (angle);
+	if (x * vx  > 0 )
+		vx = -vx;
+
 	vy = speed* cos (angle);
 	rotateSpeed = view->frandom(-0.001, 0.001);
 	nvertices = view->irandom(6, 12);
 
-	vertices = new QVector3D[nvertices];
-	float r = view->frandom(0.2, 0.5);
+	vertices = new Point[nvertices];
+	float r = view->frandom(0.1, 0.2);
 	for (int i=0; i< nvertices; i++)
 	{
 		float fi = M_PI*2 * i /nvertices;
 		fi = fi + view->frandom(-M_PI / nvertices /2., M_PI / nvertices /2);
 		float r1 = r * view->frandom(0.7, 1.3);
-		vertices[i] = QVector3D (r1 * sin(fi) , r1 * cos(fi), 0);
+		vertices[i] = Point (r1 * sin(fi) , r1 * cos(fi), 0);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
@@ -55,4 +58,15 @@ void Asteroid::draw()
 	view->flyingprogram().setUniformValue("color", color);
 	glLineWidth(2.0);
 	glDrawArrays(GL_LINE_LOOP, 0, nvertices);
+}
+
+bool Asteroid::isPointInside(Point *p) const
+{
+	Point center(x,y, 0.0);
+	return ::isInside(p, vertices, &center, nvertices);
+}
+
+bool Asteroid::out() const
+{
+	return y < -1.0;
 }

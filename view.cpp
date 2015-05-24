@@ -169,20 +169,60 @@ void View::processRelease(int x, int y)
 
 }
 
+void View::checkShoots()
+{
+	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+	{
+		Point p = (*bit)->top();
+		for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
+		{
+			if ((*ait)->isPointInside(&p ))
+			{
+				Asteroid* asteroid = *ait;
+				Bullet* bullet = *bit;
+				(*ait)->setColor(1.0, 0.0, 0.0);
+				//delete *ait;
+				ait = asteroids.erase(ait);
+				//delete *bit;
+				bit = bullets.erase(bit);
+				delete asteroid;
+				delete bullet;
+				goto nextbullet;
+			}
+		}
+		nextbullet: ;
+	}
+}
+
 void View::timerEvent(QTimerEvent *)
 {
 
 //	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
 //	bul->bullet->moveStep();
 	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+	{
 		(*bit)->moveStep();
+		if ((*bit)->out() )
+		{
+			delete *bit;
+			bit = bullets.erase(bit);
+		}
+	}
 	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
+	{
 		(*bit)->moveStep();
+		if ((*bit)->out() )
+		{
+			delete *bit;
+			bit = asteroids.erase(bit);
+		}
+	}
+	checkShoots();
 	if (nticks == asteroidAppearTime)
 	{
 		Asteroid* asteroid = new Asteroid (this);
 		addAsteroid(asteroid);
-		asteroidAppearTime = nticks + irandom(1000);
+		asteroidAppearTime = nticks + irandom(300, 1000) /log10 (nticks+10);
 	}
 	updateGL();
 	nticks ++;
@@ -315,6 +355,7 @@ void View::resizeGL(int w, int h)
 {
 	glViewport(0, 0, w, h);
 	aspect = w * 1.0 / h;
+	//aspect = 1;
 	projection.setToIdentity();
 	projection.ortho(- aspect, aspect , -1.0, 1.0 , -1999., 1999. );
 

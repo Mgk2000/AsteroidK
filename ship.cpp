@@ -20,14 +20,14 @@ void Ship::init()
 	rotateSpeed = 0.0f;
 	width = 0.2;
 	height = width * 1.5;
-	vertices = new QVector3D[6];
-	vertices[0] = QVector3D (-width /2 , 0, 0);
-	vertices[1] = QVector3D (width /2, 0, 0);
-	vertices[2] = QVector3D (0 , height, 0);
+	vertices = new Point[6];
+	vertices[0] = Point (-width /2 , 0, 0);
+	vertices[1] = Point (width /2, 0, 0);
+	vertices[2] = Point (0 , height, 0);
 
-	vertices[3] = QVector3D (-width /4, 0, 0);
-	vertices[4] = QVector3D (0, -width/4, 0);
-	vertices[5] = QVector3D (width /4, 0, 0);
+	vertices[3] = Point (-width /4, 0, 0);
+	vertices[4] = Point (0, -width/4, 0);
+	vertices[5] = Point (width /4, 0, 0);
 	nvertices = 6;
 
 	indices = new GLushort [6];

@@ -4,6 +4,7 @@
 #include <QVector3D>
 #include <QGLFunctions>
 #include <QGLShaderProgram>
+#include "points.h"
 class View;
 class FlyingObject : protected QGLFunctions
 {
@@ -20,7 +21,8 @@ public:
 protected:
 	float x,y,angle;
 	uint vboIds[2];
-	QVector3D* vertices;
+	//QVector3D* vertices;
+	Point* vertices;
 	int nvertices;
 	GLushort* indices;
 	int nindices;
