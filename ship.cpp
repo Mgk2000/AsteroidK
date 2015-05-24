@@ -17,11 +17,13 @@ void Ship::init()
 	x =0.f;
 	y=-0.5f;
 	angle = 0.f;
+	rotateSpeed = 0.0f;
 	width = 0.2;
+	height = width * 1.5;
 	vertices = new QVector3D[6];
 	vertices[0] = QVector3D (-width /2 , 0, 0);
 	vertices[1] = QVector3D (width /2, 0, 0);
-	vertices[2] = QVector3D (0 , width * 1.5, 0);
+	vertices[2] = QVector3D (0 , height, 0);
 
 	vertices[3] = QVector3D (-width /4, 0, 0);
 	vertices[4] = QVector3D (0, -width/4, 0);
@@ -51,4 +53,9 @@ bool Ship::touched(float _x, float _y) const
 	if (dy > delta || dy < -delta)
 		return false;
 	return true;
+}
+
+float Ship::top() const
+{
+	return y + height;
 }

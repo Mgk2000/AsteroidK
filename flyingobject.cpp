@@ -1,9 +1,21 @@
 #include "flyingobject.h"
 #include "view.h"
-FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view)
+#include "math.h"
+FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+	rotateSpeed(0.0f), live(0), angle(0.f), speed (0.f)
 {
 	initializeGLFunctions();
 	glGenBuffers(2, vboIds);
+}
+
+FlyingObject::FlyingObject(View *_view, float _x, float _y, float _speed, float _angle):
+	vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+	rotateSpeed(0.0f), live(0), angle(_angle), speed (_speed), x(_x), y(_y)
+{
+	initializeGLFunctions();
+	glGenBuffers(2, vboIds);
+	vx = speed* sin(angle);
+	vy = speed* cos(angle);
 }
 
 FlyingObject::~FlyingObject()
@@ -52,6 +64,12 @@ void FlyingObject::draw()
 	err= err;
 	QString qlog = view->flyingprogram().log();
 	qlog = qlog;
+}
+
+void FlyingObject::moveStep()
+{
+	x = x + vx;
+	y = y + vy;
 }
 
 void FlyingObject::fill_vbos()

@@ -9,9 +9,11 @@ class FlyingObject : protected QGLFunctions
 {
 public:
 	FlyingObject(View* _view);
+	FlyingObject(View* _view, float _x, float _y, float _speed, float _angle);
 	virtual ~FlyingObject();
 	virtual void init();
 	virtual void draw();
+	virtual void moveStep();
 	float X() const {return x;}
 	float Y() const {return y;}
 
@@ -25,6 +27,11 @@ protected:
 	QVector4D color;
 	void fill_vbos();
 	View* view;
+	float rotateSpeed;
+	int live;
+	float speed;
+	float vx, vy;
 };
+
 
 #endif // FLYINGOBJECT_H

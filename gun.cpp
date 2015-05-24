@@ -44,35 +44,28 @@ bool Gun::touched(float _x, float _y, float* fi) const
 	float dr = r-_r;
 	bool b = dr < delta && dr > -delta;
 	qDebug() << "gun touched=" << b;
+	if (b)
+	{
+		*fi = (float) atan2(_x,_y-y);
+	}
 	return b;
 }
 
 void Gun::draw()
 {
-	QMatrix4x4 matrix3;
-//	matrix3.translate(x, y, 0);
+//	QMatrix4x4 matrix3;
 	bool b = view->flyingprogram().bind();
-	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix3);
-	GLint err = glGetError();
+	view->flyingprogram().setUniformValue("mvp_matrix", view->projection /* matrix3*/);
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	err = glGetError();
-	// Offset for position
 	quintptr offset = 0;
 
 	// Tell OpenGL programmable pipeline how to locate vertex position data
 	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	err = glGetError();
 	view->flyingprogram().enableAttributeArray(vertexLocation);
-	err = glGetError();
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	err = glGetError();
 	view->flyingprogram().setUniformValue("color", color);
-	err = glGetError();
 	glLineWidth(3.0);
 	glDrawArrays(GL_LINE_STRIP, 0, NP);
-	err = glGetError();
-	err= err;
-	QString qlog = view->flyingprogram().log();
-	qlog = qlog;
+
 }
 

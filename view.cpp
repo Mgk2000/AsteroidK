@@ -45,10 +45,11 @@
 #include <math.h>
 #include "ship.h"
 #include "gun.h"
+#include "bullet.h"
 
 View::View(QWidget *parent) :
 	QGLWidget(parent),
-	 shipDragging(false)
+	 shipDragging(false), bullets(0)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
@@ -155,7 +156,7 @@ void View::processPress(int x, int y)
 	float fi;
 	if (gun->touched(fx, fy, &fi))
 	{
-
+		shoot (fi);
 	}
 }
 
@@ -170,6 +171,9 @@ void View::processRelease(int x, int y)
 
 void View::timerEvent(QTimerEvent *)
 {
+
+	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
+		bul->bullet->moveStep();
 	updateGL();
 }
 
@@ -197,18 +201,12 @@ void View::initializeGL()
 //! [3]
 void View::initShaders()
 {
-	// Compile vertex shader
 	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Vertex, ":/vflyingshader.vsh"))
 		close();
-
-	// Compile fragment shader
 	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Fragment, ":/fflyingshader.fsh"))
 		close();
-
-	// Link shader pipeline
 	if (!_flyingprogram.link())
 		close();
-
 }
 
 void View::screenToView(int x, int y, float *fx, float *fy) const
@@ -216,37 +214,79 @@ void View::screenToView(int x, int y, float *fx, float *fy) const
 	*fx = 2.0 * (x - width()/2) / width() * aspect;
 	*fy = - 2.0 * (y - height()/2) * 1.0 / height();
 }
-//! [3]
+
+void View::shoot(float angle)
+{
+	float x = ship->X();
+	float y = ship->top();
+	Bullet* bullet = new Bullet(this, x,y,angle);
+	addBullet (bullet);
+}
+
+void View::addBullet(Bullet *bullet)
+{
+	if (!bullets)
+	{
+		bullets = new BulletInfo;
+		bullets->bullet = bullet;
+		bullets->next = 0;
+	}
+	else
+		for (BulletInfo* bul = bullets; ; bul= bul->next)
+		{
+			if (bul->next == 0)
+			{
+				bul->next = new BulletInfo;
+				bul->next->bullet = bullet;
+				bul->next->next = 0;
+				break;
+			}
+		}
+}
+
+void View::deleteBullet(Bullet *bullet)
+{
+	if (!bullets)
+		return;
+	delete  bullet;
+	BulletInfo * bprev = 0;
+	for (BulletInfo* bul = bullets; ; bul= bul->next)
+	{
+		if (bul == bullets)
+		{
+			BulletInfo* bnext = bul->next;
+			if (bul == bullets)
+			{
+				delete bullets;
+				bullets = bnext;
+			}
+			else
+			{
+				bprev->next = bul->next;
+				delete bul;
+			}
+			break;
+		}
+		bprev = bul;
+	}
+}
+
 
 void View::resizeGL(int w, int h)
 {
-	// Set OpenGL viewport to cover whole widget
 	glViewport(0, 0, w, h);
-
-	// Calculate aspect ratio
-	//qreal aspect = qreal(w) / qreal(h ? h : 1);
 	aspect = w * 1.0 / h;
-	// Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-//	const qreal zNear = 3.0, zFar = 10.0, fov = 45.0;
-
-	// Reset projection
 	projection.setToIdentity();
-
-
-	// Set perspective projection
-//	projection.perspective(fov, aspect, zNear, zFar);
-//	projection.ortho(0.0,  480.0 , 0.0,800.0, 1999, -1999 );
 	projection.ortho(- aspect, aspect , -1.0, 1.0 , -1999., 1999. );
 
 }
-//! [5]
+
 void View::paintGL()
 {
-
-	// Clear color and depth buffer
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-//! [6]
 	ship->draw();
 	gun->draw();
+	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
+		bul->bullet->draw();
+
 }

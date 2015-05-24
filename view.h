@@ -48,11 +48,18 @@
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QGLShaderProgram>
-
+#include "random.h"
 class Ship;
 class Gun;
-#include "gun.h"
+class Bullet;
+class Random;
+
 class GeometryEngine;
+struct BulletInfo
+{
+	Bullet* bullet;
+	BulletInfo* next;
+};
 
 class View : public QGLWidget, protected QGLFunctions
 {
@@ -82,6 +89,13 @@ private:
 
 	void initShaders();
 	void screenToView(int x, int y, float* fx, float * fy) const;
+	void shoot (float angle);
+	BulletInfo* bullets;
+	void addBullet(Bullet* bullet);
+	void deleteBullet(Bullet* bullet);
+	float frandom() {return _random.frandom();}
+	float irandom(int n) {return _random.irandom(n);}
+	float frandom (float lo, float hi) {return _random.frandom(lo, hi);}
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
@@ -95,6 +109,7 @@ private:
 	Gun * gun;
 	float aspect;
 	bool shipDragging;
+	Random _random;
 };
 
 #endif // VIEW_H
