@@ -38,8 +38,8 @@
 **
 ****************************************************************************/
 
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
+#ifndef VIEW_H
+#define VIEW_H
 
 #include <QGLWidget>
 #include <QGLFunctions>
@@ -65,9 +65,14 @@ public:
 	QMatrix4x4 projection;
 	float fieldWidth() const {return aspect;}
 private:
-//	void mousePressEvent(QMouseEvent *e);
+	bool event(QEvent *e);
+	void mousePressEvent(QMouseEvent *e);
 	void mouseReleaseEvent(QMouseEvent *e);
 	void mouseMoveEvent(QMouseEvent *);
+
+	void processMove (int x, int y);
+	void processPress (int x, int y);
+	void processRelease (int x, int y);
 
 	void timerEvent(QTimerEvent *e);
 
@@ -76,6 +81,7 @@ private:
 	void paintGL();
 
 	void initShaders();
+	void screenToView(int x, int y, float* fx, float * fy) const;
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
@@ -88,8 +94,7 @@ private:
 	Ship* ship;
 	Gun * gun;
 	float aspect;
-	bool testShipTouched(int x, int y) const;
 	bool shipDragging;
 };
 
-#endif // MAINWIDGET_H
+#endif // VIEW_H

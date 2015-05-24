@@ -1,5 +1,5 @@
 #include "ship.h"
-#include "Kmainwidget.h"
+#include "view.h"
 
 Ship::Ship(View* _view): FlyingObject(_view)
 {
@@ -39,4 +39,16 @@ void Ship::init()
 void Ship::setX(float _x)
 {
 	x=_x;
+}
+
+bool Ship::touched(float _x, float _y) const
+{
+	const float delta = 0.15;
+	float dx = _x-x;
+	if (dx > delta || dx < -delta)
+		return false;
+	float dy = y-_y;
+	if (dy > delta || dy < -delta)
+		return false;
+	return true;
 }

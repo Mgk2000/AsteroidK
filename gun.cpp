@@ -1,6 +1,9 @@
 #include "gun.h"
 #include <math.h>
-#include "Kmainwidget.h"
+#include "view.h"
+#include "math_helper.h"
+#include <QDebug>
+
 
 Gun::Gun(View* _view) : view(_view)
 {
@@ -32,6 +35,16 @@ void Gun::init()
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, NP * sizeof(QVector3D), points, GL_STATIC_DRAW);
 	color = QVector4D (0.5, 0.5, 0.0, 1.0);
+}
+
+bool Gun::touched(float _x, float _y, float* fi) const
+{
+	const float delta = 0.15;
+	float _r = sqrt(sqr(_x) + sqr (_y-y));
+	float dr = r-_r;
+	bool b = dr < delta && dr > -delta;
+	qDebug() << "gun touched=" << b;
+	return b;
 }
 
 void Gun::draw()

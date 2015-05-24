@@ -1,5 +1,5 @@
 #include "flyingobject.h"
-#include "Kmainwidget.h"
+#include "view.h"
 FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view)
 {
 	initializeGLFunctions();

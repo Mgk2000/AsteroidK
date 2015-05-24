@@ -9,6 +9,7 @@ public:
 	virtual ~Ship();
 	void init();
 	void setX(float _x);
+	bool touched(float _x, float _y) const;
 private:
 	float width;
 };

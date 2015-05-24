@@ -42,7 +42,7 @@
 #include <QLabel>
 
 #ifndef QT_NO_OPENGL
-#include "Kmainwidget.h"
+#include "view.h"
 #endif
 
 int main(int argc, char *argv[])

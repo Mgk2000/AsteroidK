@@ -38,7 +38,7 @@
 **
 ****************************************************************************/
 
-#include "Kmainwidget.h"
+#include "view.h"
 
 #include <QMouseEvent>
 
@@ -55,82 +55,142 @@ View::View(QWidget *parent) :
 //	setAutoBufferSwap(false);
 //	setHeight(800);
 	this->setGeometry(geometry().x() + 100, geometry().y() +200, 480, 800);
-
+	setAttribute(Qt::WA_AcceptTouchEvents);
 }
 
 View::~View()
 {
 }
 
+bool View::event(QEvent *e)
+{
+	QEvent::Type etype = e->type();
+	if (etype == QEvent::TouchBegin ||
+		etype == QEvent::TouchUpdate ||
+		etype == QEvent::TouchEnd ||
+		etype == QEvent::TouchCancel
+			)
+	{
+		QString s;
+		switch (etype)
+		{
+		case QEvent::TouchBegin:
+			s = "Begin "; break;
+//		case QEvent::TouchUpdate:
+//			s = "Update "; break;
+//		case QEvent::TouchEnd:
+//			s = "End "; break;
+//		case QEvent::TouchCancel:
+//			s = "Cancel "; break;
+		default:
+			break;
+		}
+
+		QTouchEvent* te = (QTouchEvent*) e;
+		QList<QTouchEvent::TouchPoint> tpoints = te->touchPoints();
+//		if (etype == QEvent::TouchBegin)
+		//qDebug() << "Touch" << te->localPos().x() << e->localPos().y();
+		//if (etype == QEvent::TouchUpdate || )
+		{
+			QList<QTouchEvent::TouchPoint> tpl = te->touchPoints();
+			for (int i=0; i< tpl.count();i++)
+			{
+				QTouchEvent::TouchPoint p = tpl[i];
+				switch (p.state())
+				{
+				case Qt::TouchPointPressed:
+					processPress(p.pos().x(),  p.pos().y());
+					break;
+				case Qt::TouchPointMoved:
+					processMove(p.pos().x(),  p.pos().y());
+					break;
+				case Qt::TouchPointReleased:
+					processRelease(p.pos().x(),  p.pos().y());
+					break;
+				default:
+					break;
+				}
+				s += QString("x=%1 y=%2       ").arg(p.pos().x()).arg(p.pos().y());
+			}
+			//qDebug() << s ;
+		}
+		e->accept();
+		return true;
+	}
+	return QGLWidget::event(e);
+}
+
 //! [0]
-#if 0
+
 void View::mousePressEvent(QMouseEvent *e)
 {
+	processPress(e->localPos().x(),e->localPos().y());
 }
-#endif
 void View::mouseReleaseEvent(QMouseEvent *e)
 {
-	shipDragging = false;
-}
-bool View::testShipTouched(int x, int y) const
-{
-	float xxx = 2.0 * (x - width()/2) / width() * aspect;
-	const float delta = 0.15;
-	float dx = xxx-ship->X();
-	if (dx > delta || dx < -delta)
-		return false;
-	float yyy = - 2.0 * (y - height()/2) * 1.0 / height();
-	float dy = yyy-ship->Y();
-	if (dy > delta || dy < -delta)
-		return false;
-	return true;
+	processRelease(e->localPos().x(),e->localPos().y());
 }
 void View::mouseMoveEvent(QMouseEvent *e)
 {
-	if (testShipTouched(e->localPos().x(), e->localPos().y()) || shipDragging)
+	processMove(e->localPos().x(),e->localPos().y());
+}
+
+void View::processMove(int x, int y)
+{
+	float fx, fy;
+	screenToView(x,y, &fx, &fy);
+	if (ship->touched(fx, fy))
 	{
 		shipDragging = true;
-		QVector2D diff = QVector2D(e->localPos());
-
-		QVector3D n = QVector3D(diff.y(), diff.x(), 0.0).normalized();
-		float xxx = 2 * (e->localPos().x() - width()/2) * 1.0 / width() * aspect;
-		ship->setX(xxx);
+		ship->setX(fx);
 		updateGL();
-		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() <<  "x=" << n.x() << "  ShipX=" << ship->X();
+//		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() << "  ShipX=" << ship->X();
+	}
+}
+
+void View::processPress(int x, int y)
+{
+	float fx, fy;
+	screenToView(x,y , &fx, &fy);
+	float fi;
+	if (gun->touched(fx, fy, &fi))
+	{
 
 	}
 }
-//! [0]
 
-//! [1]
+void View::processRelease(int x, int y)
+{
+	float fx, fy;
+	screenToView(x,y, &fx, &fy);
+	if (ship->touched(fx, fy))
+		shipDragging = false;
+
+}
+
 void View::timerEvent(QTimerEvent *)
 {
 	updateGL();
 }
-//! [1]
+
 
 void View::initializeGL()
 {
-//	return;
 	initializeGLFunctions();
 	qglClearColor(Qt::black);
 	initShaders();
 
-//! [2]
 	// Enable depth buffer
 //	glEnable(GL_DEPTH_TEST);
 //	glDisable(GL_DEPTH_TEST);
 
 	// Enable back face culling
 //	glEnable(GL_CULL_FACE);
-//! [2]
 
-//	geometries.init();
-
-	// Use QBasicTimer because its faster than QTimer
 	ship = new Ship (this);
 	//ship->init();
 	gun = new Gun (this);
+	// Use QBasicTimer because its faster than QTimer
 	timer.start(12, this);
 }
 
@@ -149,6 +209,12 @@ void View::initShaders()
 	if (!_flyingprogram.link())
 		close();
 
+}
+
+void View::screenToView(int x, int y, float *fx, float *fy) const
+{
+	*fx = 2.0 * (x - width()/2) / width() * aspect;
+	*fy = - 2.0 * (y - height()/2) * 1.0 / height();
 }
 //! [3]
 

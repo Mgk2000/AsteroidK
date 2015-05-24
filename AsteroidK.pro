@@ -4,10 +4,12 @@ TARGET = cube
 TEMPLATE = app
 
 SOURCES += main.cpp \
-    Kmainwidget.cpp \
     flyingobject.cpp \
     ship.cpp \
-    gun.cpp
+    gun.cpp \
+    view.cpp \
+    math_helper.cpp \
+    bullet.cpp
 
 qtHaveModule(opengl) {
     QT += opengl
@@ -32,7 +34,9 @@ OTHER_FILES += \
     fflyingshader.fsh
 
 HEADERS += \
-    Kmainwidget.h \
     flyingobject.h \
     ship.h \
-    gun.h
+    gun.h \
+    view.h \
+    math_helper.h \
+    bullet.h
