@@ -46,10 +46,10 @@
 #include "ship.h"
 #include "gun.h"
 #include "bullet.h"
-
+#include "asteroid.h"
 View::View(QWidget *parent) :
 	QGLWidget(parent),
-	 shipDragging(false), bullets(0)
+	 shipDragging(false), bullets(0),asteroidAppearTime(0), nticks(0)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
@@ -172,9 +172,20 @@ void View::processRelease(int x, int y)
 void View::timerEvent(QTimerEvent *)
 {
 
-	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
-		bul->bullet->moveStep();
+//	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
+//	bul->bullet->moveStep();
+	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+		(*bit)->moveStep();
+	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
+		(*bit)->moveStep();
+	if (nticks == asteroidAppearTime)
+	{
+		Asteroid* asteroid = new Asteroid (this);
+		addAsteroid(asteroid);
+		asteroidAppearTime = nticks + irandom(1000);
+	}
 	updateGL();
+	nticks ++;
 }
 
 
@@ -223,51 +234,79 @@ void View::shoot(float angle)
 	addBullet (bullet);
 }
 
+void View::addAsteroid(Asteroid *asteroid)
+{
+	asteroids.push_back(asteroid);
+}
+
+void View::deleteAsteroid(Asteroid *asteroid)
+{
+	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
+	{
+		if (*bit == asteroid)
+		{
+			delete asteroid;
+			asteroids.erase(bit);
+			break;
+		}
+	}
+}
+
 void View::addBullet(Bullet *bullet)
 {
-	if (!bullets)
-	{
-		bullets = new BulletInfo;
-		bullets->bullet = bullet;
-		bullets->next = 0;
-	}
-	else
-		for (BulletInfo* bul = bullets; ; bul= bul->next)
-		{
-			if (bul->next == 0)
-			{
-				bul->next = new BulletInfo;
-				bul->next->bullet = bullet;
-				bul->next->next = 0;
-				break;
-			}
-		}
+//	if (!bullets)
+//	{
+//		bullets = new BulletInfo;
+//		bullets->bullet = bullet;
+//		bullets->next = 0;
+//	}
+//	else
+//		for (BulletInfo* bul = bullets; ; bul= bul->next)
+//		{
+//			if (bul->next == 0)
+//			{
+//				bul->next = new BulletInfo;
+//				bul->next->bullet = bullet;
+//				bul->next->next = 0;
+//				break;
+//			}
+//		}
+	bullets.push_back(bullet);
 }
 
 void View::deleteBullet(Bullet *bullet)
 {
-	if (!bullets)
-		return;
-	delete  bullet;
-	BulletInfo * bprev = 0;
-	for (BulletInfo* bul = bullets; ; bul= bul->next)
+//	if (!bullets)
+//		return;
+//	delete  bullet;
+//	BulletInfo * bprev = 0;
+//	for (BulletInfo* bul = bullets; ; bul= bul->next)
+//	{
+//		if (bul == bullets)
+//		{
+//			BulletInfo* bnext = bul->next;
+//			if (bul == bullets)
+//			{
+//				delete bullets;
+//				bullets = bnext;
+//			}
+//			else
+//			{
+//				bprev->next = bul->next;
+//				delete bul;
+//			}
+//			break;
+//		}
+//		bprev = bul;
+//	}
+	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
 	{
-		if (bul == bullets)
+		if (*bit == bullet)
 		{
-			BulletInfo* bnext = bul->next;
-			if (bul == bullets)
-			{
-				delete bullets;
-				bullets = bnext;
-			}
-			else
-			{
-				bprev->next = bul->next;
-				delete bul;
-			}
+			delete bullet;
+			bullets.erase(bit);
 			break;
 		}
-		bprev = bul;
 	}
 }
 
@@ -286,7 +325,12 @@ void View::paintGL()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	ship->draw();
 	gun->draw();
-	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
-		bul->bullet->draw();
+//	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
+//		bul->bullet->draw();
+	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+		(*bit)->draw();
+	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
+		(*bit)->draw();
+
 
 }

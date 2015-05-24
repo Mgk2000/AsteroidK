@@ -48,12 +48,13 @@
 #include <QVector2D>
 #include <QBasicTimer>
 #include <QGLShaderProgram>
+#include <list>
 #include "random.h"
 class Ship;
 class Gun;
 class Bullet;
 class Random;
-
+class Asteroid;
 class GeometryEngine;
 struct BulletInfo
 {
@@ -71,6 +72,11 @@ public:
 	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
 	QMatrix4x4 projection;
 	float fieldWidth() const {return aspect;}
+	float frandom() {return _random.frandom();}
+	int irandom(int n) {return _random.irandom(n);}
+	float frandom (float lo, float hi) {return _random.frandom(lo, hi);}
+	int irandom(int lo, int hi) {return _random.irandom(lo, hi);}
+
 private:
 	bool event(QEvent *e);
 	void mousePressEvent(QMouseEvent *e);
@@ -90,12 +96,15 @@ private:
 	void initShaders();
 	void screenToView(int x, int y, float* fx, float * fy) const;
 	void shoot (float angle);
-	BulletInfo* bullets;
+	//BulletInfo* bullets;
+	std::list <Asteroid*> asteroids;
+	void addAsteroid(Asteroid* asteroid);
+	void deleteAsteroid(Asteroid* asteroid);
+	int asteroidAppearTime;
+	std::list <Bullet*> bullets;
 	void addBullet(Bullet* bullet);
 	void deleteBullet(Bullet* bullet);
-	float frandom() {return _random.frandom();}
-	float irandom(int n) {return _random.irandom(n);}
-	float frandom (float lo, float hi) {return _random.frandom(lo, hi);}
+
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
@@ -110,6 +119,7 @@ private:
 	float aspect;
 	bool shipDragging;
 	Random _random;
+	int nticks;
 };
 
 #endif // VIEW_H

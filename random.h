@@ -9,8 +9,9 @@ public:
 	int irandom(int n);
 	float frandom (float lo, float hi);
 	int irandom (int lo, int hi);
+	void reset();
 private:
-	__INT64_TYPE__ n;
+	double n;
 	double x;
 
 };
