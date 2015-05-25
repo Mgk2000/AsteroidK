@@ -18,7 +18,7 @@ void Ship::init()
 	y=-0.5f;
 	angle = 0.f;
 	rotateSpeed = 0.0f;
-	width = 0.2;
+	width = 0.07;
 	height = width * 1.5;
 	vertices = new Point[6];
 	vertices[0] = Point (-width /2 , 0, 0);
@@ -35,7 +35,7 @@ void Ship::init()
 		indices[i] = i;
 	nindices = 6;
 	fill_vbos();
-	color = QVector4D(0.0, 0.7, 0.0, 1.0);
+	_color = QVector4D(0.0, 0.7, 0.0, 1.0);
 }
 
 void Ship::setX(float _x)

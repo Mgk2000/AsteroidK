@@ -180,11 +180,11 @@ void View::checkShoots()
 			{
 				Asteroid* asteroid = *ait;
 				Bullet* bullet = *bit;
-				(*ait)->setColor(1.0, 0.0, 0.0);
-				//delete *ait;
+				(*ait)->swapColor();
 				ait = asteroids.erase(ait);
-				//delete *bit;
 				bit = bullets.erase(bit);
+				if (!asteroid->isSplinter())
+					createSplinters(asteroid);
 				delete asteroid;
 				delete bullet;
 				goto nextbullet;
@@ -220,9 +220,11 @@ void View::timerEvent(QTimerEvent *)
 	checkShoots();
 	if (nticks == asteroidAppearTime)
 	{
-		Asteroid* asteroid = new Asteroid (this);
+		Asteroid* asteroid = new Asteroid (this, &_random1);
+		asteroid->init();
 		addAsteroid(asteroid);
 		asteroidAppearTime = nticks + irandom(300, 1000) /log10 (nticks+10);
+		//asteroidAppearTime = 0;
 	}
 	updateGL();
 	nticks ++;
@@ -347,6 +349,18 @@ void View::deleteBullet(Bullet *bullet)
 			bullets.erase(bit);
 			break;
 		}
+	}
+}
+
+void View::createSplinters(Asteroid* asteroid)
+{
+	int nsp = _random2.irandom(3,5);
+	for (int i =0; i< nsp; i++)
+	{
+		Splinter* splinter = new Splinter(this, &_random2);
+		float fi = M_PI * i / nsp;
+		splinter->init(*asteroid, fi);
+		asteroids.push_front(splinter);
 	}
 }
 

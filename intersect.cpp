@@ -36,3 +36,18 @@ bool isInsideTriangle(Point *p, Point *p1, Point *p2, Point *p3)
 		qDebug() << b;
 	return b;
 }
+
+//x = x * cos(a) - y * sin(a)
+//y = x * sin(a) + y * cos(a)
+void rotatePoint(Point *ps, Point* pd, double sina , double cosa)
+{
+	pd->x = ps->x* cosa - ps->y * sina;
+	pd->y = ps->x * sina +ps->y * cosa;
+}
+void rotatePoints(Point *ps, Point* pd, double angle, int np)
+{
+	double sina = sin(angle);
+	double cosa = cos(angle);
+	for (int i=0; i<np; i++)
+		rotatePoint(&ps[i], &pd[i], sina, cosa);
+}

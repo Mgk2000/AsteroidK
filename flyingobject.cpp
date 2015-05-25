@@ -56,7 +56,7 @@ void FlyingObject::draw()
 	err = glGetError();
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
 	err = glGetError();
-	view->flyingprogram().setUniformValue("color", color);
+	view->flyingprogram().setUniformValue("color", _color);
 	err = glGetError();
 	// Draw cube geometry using indices from VBO 1
 	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
@@ -70,6 +70,12 @@ void FlyingObject::moveStep()
 {
 	x = x + vx;
 	y = y + vy;
+	live++;
+}
+
+void FlyingObject::swapColor()
+{
+	_color = QVector4D (1-_color.x(), 1-_color.y(), 1- _color.z(), 1);
 }
 
 void FlyingObject::fill_vbos()

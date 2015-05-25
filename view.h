@@ -73,10 +73,10 @@ public:
 	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
 	QMatrix4x4 projection;
 	float fieldWidth() const {return aspect;}
-	float frandom() {return _random.frandom();}
-	int irandom(int n) {return _random.irandom(n);}
-	float frandom (float lo, float hi) {return _random.frandom(lo, hi);}
-	int irandom(int lo, int hi) {return _random.irandom(lo, hi);}
+	float frandom() {return _random1.frandom();}
+	int irandom(int n) {return _random1.irandom(n);}
+	float frandom (float lo, float hi) {return _random1.frandom(lo, hi);}
+	int irandom(int lo, int hi) {return _random1.irandom(lo, hi);}
 
 	void checkShoots();
 private:
@@ -106,7 +106,7 @@ private:
 	std::list <Bullet*> bullets;
 	void addBullet(Bullet* bullet);
 	void deleteBullet(Bullet* bullet);
-
+	void createSplinters(Asteroid* asteroid);
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
@@ -120,7 +120,7 @@ private:
 	Gun * gun;
 	float aspect;
 	bool shipDragging;
-	Random _random;
+	Random _random1, _random2;
 	int nticks;
 };
 

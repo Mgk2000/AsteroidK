@@ -14,7 +14,7 @@ public:
 	Point top() const;
 	bool out() const;
 private:
-
+	float length;
 };
 
 #endif // BULLET_H
