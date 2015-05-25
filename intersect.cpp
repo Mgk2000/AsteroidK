@@ -2,18 +2,21 @@
 #include <math.h>
 #include <QDebug>
 
-bool isInside(Point* p, Point* poly, Point* center, int npoints, float angle)
+bool isInside(Point* p, Point* poly, Point* center, int npoints, bool relative)
 {
 	for (int i=0; i< npoints; i++)
 	{
 		Point p1, p2;
 		int i1 = (i+1) % npoints;
 		p1 = poly[i];
-		p1.x = p1.x + center->x;
-		p1.y = p1.y + center->y;
 		p2 = poly[i1];
-		p2.x = p2.x + center->x;
-		p2.y = p2.y + center->y;
+		if (relative)
+		{
+			p1.x = p1.x + center->x;
+			p1.y = p1.y + center->y;
+			p2.x = p2.x + center->x;
+			p2.y = p2.y + center->y;
+		}
 		if (isInsideTriangle (p, &p1, &p2, center))
 			return true;
 	}

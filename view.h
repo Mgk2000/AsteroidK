@@ -122,6 +122,7 @@ private:
 	bool shipDragging;
 	Random _random1, _random2;
 	int nticks;
+	int dieticks;
 };
 
 #endif // VIEW_H

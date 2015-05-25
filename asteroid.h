@@ -17,6 +17,8 @@ public:
 	void moveStep();
 	virtual bool isSplinter() {return false;}
 	float R() const {return r;}
+	void getCurrentCoords (Point * vertices, int* nvertices ) const;
+
 protected:
 	Point* rotatedVertices;
 	double rotateAngle;

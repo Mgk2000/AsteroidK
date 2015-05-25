@@ -1,6 +1,7 @@
 #include "flyingobject.h"
 #include "view.h"
 #include "math.h"
+#include "intersect.h"
 FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
 	rotateSpeed(0.0f), live(0), angle(0.f), speed (0.f)
 {
@@ -56,7 +57,7 @@ void FlyingObject::draw()
 	err = glGetError();
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
 	err = glGetError();
-	view->flyingprogram().setUniformValue("color", _color);
+	view->flyingprogram().setUniformValue("color", color());
 	err = glGetError();
 	// Draw cube geometry using indices from VBO 1
 	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
@@ -78,6 +79,16 @@ void FlyingObject::swapColor()
 	_color = QVector4D (1-_color.x(), 1-_color.y(), 1- _color.z(), 1);
 }
 
+void FlyingObject::getCurrentCoords(Point *_vertices, int *_nvertices) const
+{
+	*_nvertices = nvertices;
+	for (int i=0; i< nvertices; i++)
+	{
+		_vertices[i].x = vertices[i].x+x;
+		_vertices[i].y = vertices[i].y+y;
+	}
+}
+
 void FlyingObject::fill_vbos()
 {
 	// Transfer vertex data to VBO 0
@@ -87,4 +98,28 @@ void FlyingObject::fill_vbos()
 	// Transfer index data to VBO 1
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, nindices * sizeof(GLushort), indices, GL_STATIC_DRAW);
+}
+bool FlyingObject::isIntersects(const FlyingObject& obj) const
+{
+	Point mycenter (X(), Y());
+	Point ocenter (obj.X(), obj.Y());
+//	Point ocenter (0, 0);
+	int onvertices;
+	Point overtices[100];
+	Point myvertices [100];
+	int mynvertices;
+	obj.getCurrentCoords(overtices, &onvertices);
+	getCurrentCoords(myvertices, &mynvertices);
+	for (int i =0; i< mynvertices; i++)
+		if (::isInside(&myvertices[i],overtices,&ocenter,onvertices, false))
+		{
+			::isInside(&myvertices[i],overtices,&ocenter,onvertices, false);
+			return true;
+		}
+	for (int i =0; i< onvertices; i++)
+		if (::isInside(&overtices[i],myvertices,&mycenter,mynvertices, false))
+			return true;
+
+	return false;
+
 }

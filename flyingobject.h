@@ -25,7 +25,9 @@ public:
 	void setSpeedXY(float _vx, float _vy) {vx = _vx; vy=_vy;}
 	void setColor(float r , float g , float b) {_color = QVector4D (r,g,b,1.0);}
 	void setColor( const QVector4D&  __color) {_color = __color;}
-	const QVector4D&  color() const {return _color;}
+	virtual const QVector4D&  color() const {return _color;}
+	virtual void getCurrentCoords (Point * _vertices, int* _nvertices ) const;
+	bool isIntersects(const FlyingObject& obj)  const;
 protected:
 	float x,y,angle;
 	uint vboIds[2];

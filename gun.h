@@ -4,10 +4,11 @@
 #include <QVector3D>
 #include <QGLFunctions>
 #include <QGLShaderProgram>
+#include "flyingobject.h"
 
 class View;
 
-class Gun : protected QGLFunctions
+class Gun : public FlyingObject
 {
 public:
 	Gun(View* );
@@ -16,10 +17,7 @@ public:
 	void init();
 	bool touched(float _x, float _y, float* fi) const;
 private:
-	float y, r;
-	View* view;
-	uint vboIds[1];
-	QVector4D color;
+	float r;
 };
 
 #endif // GUN_H

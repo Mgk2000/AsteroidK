@@ -1,7 +1,7 @@
 #include "ship.h"
 #include "view.h"
 
-Ship::Ship(View* _view): FlyingObject(_view)
+Ship::Ship(View* _view): FlyingObject(_view), _dead (false)
 {
 	init();
 }
@@ -34,8 +34,10 @@ void Ship::init()
 	for (int i = 0; i< 6; i++)
 		indices[i] = i;
 	nindices = 6;
+	deadcolor = QVector4D(1,0,0,1);
+	alivecolor =  QVector4D(0.0, 0.7, 0.7, 1.0);
 	fill_vbos();
-	_color = QVector4D(0.0, 0.7, 0.0, 1.0);
+
 }
 
 void Ship::setX(float _x)
@@ -45,6 +47,8 @@ void Ship::setX(float _x)
 
 bool Ship::touched(float _x, float _y) const
 {
+	if (_dead)
+		return false;
 	const float delta = 0.15;
 	float dx = _x-x;
 	if (dx > delta || dx < -delta)
@@ -59,3 +63,40 @@ float Ship::top() const
 {
 	return y + height;
 }
+
+void Ship::getCurrentCoords(Point *_vertices, int *_nvertices) const
+{
+	*_nvertices = 3;
+	_vertices[0] = Point(x, y+height,0 );
+	_vertices[1] = Point(x - width*0.5, y,0 );
+	_vertices[2] = Point(x + width*0.5, y,0 );
+
+}
+
+void Ship::moveStep()
+{
+
+}
+
+void Ship::die()
+{
+	if (_dead)
+		return;
+	_dead = true;
+}
+
+void Ship::revive()
+{
+	_dead = false;
+	x=0;
+}
+
+const QVector4D &Ship::color() const
+{
+	if (_dead)
+		return deadcolor;
+	else
+		return alivecolor;
+}
+
+

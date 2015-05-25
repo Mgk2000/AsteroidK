@@ -196,9 +196,26 @@ void View::checkShoots()
 
 void View::timerEvent(QTimerEvent *)
 {
+	if (ship->dead())
+	{
+		dieticks --;
+		if (!dieticks)
+		{
+			for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
+				delete *ait;
+			asteroids.clear();
+			for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+				delete *bit;
+			bullets.clear();
+			_random1.reset();
+			_random2.reset();
+			ship->revive();
+			asteroidAppearTime = nticks+1;
+		}
+		else
+			return;
+	}
 
-//	for (BulletInfo* bul = bullets; bul != 0; bul = bul->next)
-//	bul->bullet->moveStep();
 	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
 	{
 		(*bit)->moveStep();
@@ -208,13 +225,13 @@ void View::timerEvent(QTimerEvent *)
 			bit = bullets.erase(bit);
 		}
 	}
-	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
+	for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
 	{
-		(*bit)->moveStep();
-		if ((*bit)->out() )
+		(*ait)->moveStep();
+		if ((*ait)->out() )
 		{
-			delete *bit;
-			bit = asteroids.erase(bit);
+			delete *ait;
+			ait = asteroids.erase(ait);
 		}
 	}
 	checkShoots();
@@ -226,6 +243,28 @@ void View::timerEvent(QTimerEvent *)
 		asteroidAppearTime = nticks + irandom(300, 1000) /log10 (nticks+10);
 		//asteroidAppearTime = 0;
 	}
+	for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
+	{
+		if (ship->isIntersects(**ait))
+		{
+			ship->die();
+			dieticks = 100;
+			nticks = 0;
+			break;
+		}
+	}
+//	if (ship->dead())
+//	{
+//		for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
+//			delete *ait;
+//		asteroids.clear();
+//		for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
+//			delete *bit;
+//		bullets.clear();
+//		_random1.reset();
+//		_random2.reset();
+//		dieticks = 300;
+//	}
 	updateGL();
 	nticks ++;
 }
@@ -234,7 +273,8 @@ void View::timerEvent(QTimerEvent *)
 void View::initializeGL()
 {
 	initializeGLFunctions();
-	qglClearColor(Qt::black);
+	//qglClearColor(Qt::black);
+	glClearColor(0.0,0., 0.1, 1);
 	initShaders();
 
 	// Enable depth buffer

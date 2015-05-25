@@ -44,7 +44,10 @@ void Asteroid::initParams()
 		vx = -vx;
 	rotateSpeed = view->frandom(-0.1, 0.1);
 	vy = speed* cos (angle);
-	nvertices = view->irandom(20, 30);
+	nvertices = view->irandom(40, 60);
+//	nvertices = 3;
+//	x=0;
+//	vx=0;
 }
 
 void Asteroid::applyParams()
@@ -55,8 +58,9 @@ void Asteroid::applyParams()
 	{
 		float fi = M_PI*2 * i /nvertices;
 		fi = fi + view->frandom(-M_PI / nvertices /2., M_PI / nvertices /2);
-		float r1 = r * view->frandom(0.7, 1.3);
+		float r1 = r * view->frandom(0.9, 1.1);
 		vertices[i] = Point (r1 * sin(fi) , r1 * cos(fi), 0);
+		rotatedVertices[i] = vertices[i];
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
@@ -85,7 +89,7 @@ void Asteroid::draw()
 bool Asteroid::isPointInside(Point *p) const
 {
 	Point center(x,y, 0.0);
-	return ::isInside(p, rotatedVertices, &center, nvertices);
+	return ::isInside(p, rotatedVertices, &center, nvertices, true);
 }
 
 bool Asteroid::out() const
@@ -102,6 +106,16 @@ void Asteroid::moveStep()
 	FlyingObject::moveStep();
 	rotateAngle = rotateSpeed * live;
 	rotatePoints(vertices, rotatedVertices, rotateAngle * M_PI /180, nvertices);
+}
+
+void Asteroid::getCurrentCoords(Point *_vertices, int *_nvertices) const
+{
+	*_nvertices = nvertices;
+	for (int i=0; i< nvertices; i++)
+	{
+		_vertices[i].x = rotatedVertices[i].x+x;
+		_vertices[i].y = rotatedVertices[i].y+y;
+	}
 }
 
 Splinter::Splinter(View *view, Random* _random) : Asteroid (view, _random)

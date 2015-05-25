@@ -5,6 +5,8 @@ struct Point3D
 {
 	Point3D () : x (0.0), y(0.0), z(0.0) {}
 	Point3D (float _x, float _y, float _z) : x (_x), y(_y), z(_z) {}
+	Point3D (float _x, float _y) : x (_x), y(_y), z(0.0) {}
+
 	float x,y,z;
 
 };

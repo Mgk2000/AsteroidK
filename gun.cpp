@@ -5,16 +5,14 @@
 #include <QDebug>
 
 
-Gun::Gun(View* _view) : view(_view)
+Gun::Gun(View* _view) :  FlyingObject(_view)
 {
-	initializeGLFunctions();
-	glGenBuffers(1, vboIds);
 	init ();
 }
 
 Gun::~Gun()
 {
-	glDeleteBuffers(1, vboIds);
+
 }
 #define NP 65
 
@@ -22,7 +20,7 @@ void Gun::init()
 {
 	QVector3D points[NP];
 	float w = 0.6;
-	float h = 0.5;
+	float h = 0.0;
 	y = - 1 - h;
 	r = sqrt(h * h + w * w);
 	double fi0 = atan2(h, w);
@@ -34,7 +32,7 @@ void Gun::init()
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, NP * sizeof(QVector3D), points, GL_STATIC_DRAW);
-	color = QVector4D (0.5, 0.5, 0.0, 1.0);
+	_color = QVector4D (0.5, 0.5, 0.0, 1.0);
 }
 
 bool Gun::touched(float _x, float _y, float* fi) const
@@ -54,7 +52,7 @@ bool Gun::touched(float _x, float _y, float* fi) const
 void Gun::draw()
 {
 //	QMatrix4x4 matrix3;
-	bool b = view->flyingprogram().bind();
+	view->flyingprogram().bind();
 	view->flyingprogram().setUniformValue("mvp_matrix", view->projection /* matrix3*/);
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	quintptr offset = 0;
@@ -63,7 +61,7 @@ void Gun::draw()
 	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
 	view->flyingprogram().enableAttributeArray(vertexLocation);
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	view->flyingprogram().setUniformValue("color", color);
+	view->flyingprogram().setUniformValue("color", color());
 	glLineWidth(3.0);
 	glDrawArrays(GL_LINE_STRIP, 0, NP);
 
