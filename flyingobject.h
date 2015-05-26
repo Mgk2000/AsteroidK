@@ -6,12 +6,13 @@
 #include <QGLFunctions>
 #include <QGLShaderProgram>
 #include "points.h"
+class Random;
 class View;
 class FlyingObject : protected QGLFunctions
 {
 public:
-	FlyingObject(View* _view);
-	FlyingObject(View* _view, float _x, float _y, float _speed, float _angle);
+	FlyingObject(View* _view, int _nbos);
+	FlyingObject(View* _view, int _nbos, float _x, float _y, float _speed, float _angle);
 	virtual ~FlyingObject();
 	virtual void init();
 	virtual void draw();
@@ -28,9 +29,12 @@ public:
 	virtual const QVector4D&  color() const {return _color;}
 	virtual void getCurrentCoords (Point * _vertices, int* _nvertices ) const;
 	bool isIntersects(const FlyingObject& obj)  const;
+	virtual bool isPointInside( Point* p) const;
+
 protected:
 	float x,y,angle;
-	uint vboIds[2];
+	uint* vboIds;
+	int nbos;
 	//QVector3D* vertices;
 	Point* vertices;
 	int nvertices;
@@ -43,6 +47,9 @@ protected:
 	int live;
 	float speed;
 	float vx, vy;
+	float r;
+	Random &random1() const;
+	Random &random2() const;
 };
 
 

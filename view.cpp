@@ -47,6 +47,7 @@
 #include "gun.h"
 #include "bullet.h"
 #include "asteroid.h"
+#include "patrol.h"
 View::View(QWidget *parent) :
 	QGLWidget(parent),
 	 shipDragging(false), bullets(0),asteroidAppearTime(0), nticks(0)
@@ -57,6 +58,7 @@ View::View(QWidget *parent) :
 //	setHeight(800);
 	this->setGeometry(geometry().x() + 100, geometry().y() +200, 480, 800);
 	setAttribute(Qt::WA_AcceptTouchEvents);
+
 }
 
 View::~View()
@@ -174,12 +176,12 @@ void View::checkShoots()
 	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
 	{
 		Point p = (*bit)->top();
+		Bullet* bullet = *bit;
 		for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
 		{
 			if ((*ait)->isPointInside(&p ))
 			{
 				Asteroid* asteroid = *ait;
-				Bullet* bullet = *bit;
 				(*ait)->swapColor();
 				ait = asteroids.erase(ait);
 				bit = bullets.erase(bit);
@@ -189,6 +191,13 @@ void View::checkShoots()
 				delete bullet;
 				goto nextbullet;
 			}
+		}
+		if (patrol && patrol->isPointInside(&p))
+		{
+			delete patrol;
+			patrol =0;
+			delete *bit;
+			bit = bullets.erase(bit);
 		}
 		nextbullet: ;
 	}
@@ -234,13 +243,35 @@ void View::timerEvent(QTimerEvent *)
 			ait = asteroids.erase(ait);
 		}
 	}
+	if (patrol)
+	{
+		patrol->moveStep();
+		if (patrol->out())
+		{
+			delete patrol;
+			patrol = 0;
+		}
+	}
 	checkShoots();
 	if (nticks == asteroidAppearTime)
 	{
-		Asteroid* asteroid = new Asteroid (this, &_random1);
-		asteroid->init();
-		addAsteroid(asteroid);
-		asteroidAppearTime = nticks + irandom(300, 1000) /log10 (nticks+10);
+		bool pat = false;
+		if (!patrol)
+		{
+			if (_random1.frandom() <= 0.99905)
+			{
+				patrol = new Patrol (this);
+				patrol->init();
+				pat = true;
+			}
+		}
+		if (!pat)
+		{
+			Asteroid* asteroid = new Asteroid (this, &_random1);
+			asteroid->init();
+			addAsteroid(asteroid);
+		}
+		asteroidAppearTime = nticks + random1().irandom(300, 1000) /log10 (nticks+10);
 		//asteroidAppearTime = 0;
 	}
 	for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
@@ -287,6 +318,7 @@ void View::initializeGL()
 	ship = new Ship (this);
 	//ship->init();
 	gun = new Gun (this);
+	patrol = 0;
 	// Use QBasicTimer because its faster than QTimer
 	timer.start(12, this);
 }
@@ -426,6 +458,8 @@ void View::paintGL()
 		(*bit)->draw();
 	for (std::list<Asteroid*> ::iterator bit = asteroids.begin(); bit != asteroids.end(); bit++)
 		(*bit)->draw();
+	if (patrol)
+		patrol->draw();
 
 
 }

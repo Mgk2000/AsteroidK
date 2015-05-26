@@ -12,7 +12,9 @@ SOURCES += main.cpp \
     bullet.cpp \
     random.cpp \
     asteroid.cpp \
-    intersect.cpp
+    intersect.cpp \
+    patrol.cpp \
+    patrolbullet.cpp
 
 qtHaveModule(opengl) {
     QT += opengl
@@ -46,4 +48,6 @@ HEADERS += \
     random.h \
     asteroid.h \
     intersect.h \
-    points.h
+    points.h \
+    patrol.h \
+    patrolbullet.h

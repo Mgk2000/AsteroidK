@@ -2,26 +2,39 @@
 #include "view.h"
 #include "math.h"
 #include "intersect.h"
-FlyingObject::FlyingObject(View* _view): vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+
+FlyingObject::FlyingObject(View* _view, int _nbos): nbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
 	rotateSpeed(0.0f), live(0), angle(0.f), speed (0.f)
 {
 	initializeGLFunctions();
-	glGenBuffers(2, vboIds);
+	if (nbos)
+	{
+		vboIds = new uint[nbos];
+		glGenBuffers(nbos, vboIds);
+	}
 }
 
-FlyingObject::FlyingObject(View *_view, float _x, float _y, float _speed, float _angle):
-	vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+FlyingObject::FlyingObject(View *_view, int _nbos, float _x, float _y, float _speed, float _angle):
+	nbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
 	rotateSpeed(0.0f), live(0), angle(_angle), speed (_speed), x(_x), y(_y)
 {
 	initializeGLFunctions();
-	glGenBuffers(2, vboIds);
+	if (nbos)
+	{
+		vboIds = new uint[nbos];
+		glGenBuffers(nbos, vboIds);
+	}
 	vx = speed* sin(angle);
 	vy = speed* cos(angle);
 }
 
 FlyingObject::~FlyingObject()
 {
-	glDeleteBuffers(2, vboIds);
+	if (nbos)
+	{
+		glDeleteBuffers(2, vboIds);
+		delete[] vboIds;
+	}
 	if (vertices)
 		delete[] vertices;
 	if (indices)
@@ -41,30 +54,29 @@ void FlyingObject::draw()
 	matrix3.translate(x, y, 0);
 	bool b = view->flyingprogram().bind();
 	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix3);
-	GLint err = glGetError();
+//	GLint err = glGetError();
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	err = glGetError();
+//	err = glGetError();
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
-	err = glGetError();
+//	err = glGetError();
 
 	// Offset for position
 	quintptr offset = 0;
 
 	// Tell OpenGL programmable pipeline how to locate vertex position data
 	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	err = glGetError();
+//	err = glGetError();
 	view->flyingprogram().enableAttributeArray(vertexLocation);
-	err = glGetError();
+//	err = glGetError();
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	err = glGetError();
+//	err = glGetError();
 	view->flyingprogram().setUniformValue("color", color());
-	err = glGetError();
-	// Draw cube geometry using indices from VBO 1
+//	err = glGetError();
 	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
-	err = glGetError();
-	err= err;
-	QString qlog = view->flyingprogram().log();
-	qlog = qlog;
+//	err = glGetError();
+//	err= err;
+//	QString qlog = view->flyingprogram().log();
+//	qlog = qlog;
 }
 
 void FlyingObject::moveStep()
@@ -99,6 +111,16 @@ void FlyingObject::fill_vbos()
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, nindices * sizeof(GLushort), indices, GL_STATIC_DRAW);
 }
+
+Random& FlyingObject::random1() const
+{
+	return view->random1();
+}
+
+Random &FlyingObject::random2() const
+{
+	return view->random2();
+}
 bool FlyingObject::isIntersects(const FlyingObject& obj) const
 {
 	Point mycenter (X(), Y());
@@ -113,7 +135,7 @@ bool FlyingObject::isIntersects(const FlyingObject& obj) const
 	for (int i =0; i< mynvertices; i++)
 		if (::isInside(&myvertices[i],overtices,&ocenter,onvertices, false))
 		{
-			::isInside(&myvertices[i],overtices,&ocenter,onvertices, false);
+//			::isInside(&myvertices[i],overtices,&ocenter,onvertices, false);
 			return true;
 		}
 	for (int i =0; i< onvertices; i++)
@@ -123,3 +145,13 @@ bool FlyingObject::isIntersects(const FlyingObject& obj) const
 	return false;
 
 }
+
+bool FlyingObject::isPointInside(Point *p) const
+{
+	Point myvertices [100];
+	int mynvertices;
+	getCurrentCoords(myvertices, &mynvertices);
+	Point mycenter (X(), Y());
+	return ::isInside(p, myvertices, &mycenter,mynvertices, false);
+}
+

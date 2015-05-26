@@ -1,7 +1,7 @@
 #include "bullet.h"
 #include <math.h>
 #include "view.h"
-Bullet::Bullet(View* view, float _x, float _y, float _angle) : FlyingObject(view, _x, _y, 0.01f, _angle)
+Bullet::Bullet(View* view, float _x, float _y, float _angle) : FlyingObject(view, 1, _x, _y, 0.02f, _angle)
 
 {
 	init();

@@ -3,9 +3,9 @@
 #include "view.h"
 #include "intersect.h"
 #include "random.h"
-Asteroid::Asteroid(View * _view, Random* _random) : FlyingObject (_view), random(_random)
+Asteroid::Asteroid(View * _view, Random* _random) : FlyingObject (_view, 1), random(_random)
 {
-	init();
+//	init();
 }
 
 
@@ -33,18 +33,18 @@ void Asteroid::init()
 
 void Asteroid::initParams()
 {
-	x = view->frandom(-1.0, 1.0);
-	angle =  view->frandom(M_PI * 0.8, M_PI * 1.2);
+	x = random1().frandom(-1.0, 1.0);
+	angle =  random1().frandom(M_PI * 0.8, M_PI * 1.2);
 	speed = 0.001;
 	//float qqq = sin(M_PI /6);
 	vx = speed* sin (angle);
-	r = view->frandom(0.1, 0.3);
+	r = random1().frandom(0.03, 0.06);
 	y = 1.+0.5* r;
 	if (x * vx  > 0 )
 		vx = -vx;
-	rotateSpeed = view->frandom(-0.1, 0.1);
+	rotateSpeed = random1().frandom(-0.1, 0.1);
 	vy = speed* cos (angle);
-	nvertices = view->irandom(40, 60);
+	nvertices = random1().irandom(40, 60);
 //	nvertices = 3;
 //	x=0;
 //	vx=0;
@@ -57,14 +57,14 @@ void Asteroid::applyParams()
 	for (int i=0; i< nvertices; i++)
 	{
 		float fi = M_PI*2 * i /nvertices;
-		fi = fi + view->frandom(-M_PI / nvertices /2., M_PI / nvertices /2);
-		float r1 = r * view->frandom(0.9, 1.1);
+		fi = fi + random1().frandom(-M_PI / nvertices /2., M_PI / nvertices /2);
+		float r1 = r * random1().frandom(0.9, 1.1);
 		vertices[i] = Point (r1 * sin(fi) , r1 * cos(fi), 0);
 		rotatedVertices[i] = vertices[i];
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
-	_color = QVector4D (0.3+view->frandom()*0.7 , 0.3+view->frandom()*0.7, 0.3+view->frandom()*0.7, 1.0);
+	_color = QVector4D (0.3 + random1().frandom()*0.7 , 0.3 + random1().frandom()*0.7, 0.3 + random1().frandom()*0.7, 1.0);
 }
 
 void Asteroid::draw()

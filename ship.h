@@ -19,7 +19,7 @@ public:
 	bool dead() {return _dead;}
 	const QVector4D&  color() const;
 private:
-	bool isPointInside( Point* p) const;
+//	bool isPointInside( Point* p) const;
 	float width;
 	float height;
 	bool _dead;

@@ -5,7 +5,7 @@
 #include <QDebug>
 
 
-Gun::Gun(View* _view) :  FlyingObject(_view)
+Gun::Gun(View* _view) :  FlyingObject(_view, 1)
 {
 	init ();
 }

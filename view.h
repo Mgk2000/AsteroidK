@@ -57,6 +57,7 @@ class Bullet;
 class Random;
 class Asteroid;
 class GeometryEngine;
+class Patrol;
 struct BulletInfo
 {
 	Bullet* bullet;
@@ -73,12 +74,23 @@ public:
 	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
 	QMatrix4x4 projection;
 	float fieldWidth() const {return aspect;}
-	float frandom() {return _random1.frandom();}
-	int irandom(int n) {return _random1.irandom(n);}
-	float frandom (float lo, float hi) {return _random1.frandom(lo, hi);}
-	int irandom(int lo, int hi) {return _random1.irandom(lo, hi);}
+	Random& random1() {return _random1;}
+	Random& random2() {return _random2;}
+//	float frandom1() {return _random1.frandom();}
+//	int irandom1(int n) {return _random1.irandom(n);}
+//	float frandom1 (float lo, float hi) {return _random1.frandom(lo, hi);}
+//	int irandom1(int lo, int hi) {return _random1.irandom(lo, hi);}
+//	float frandom2() {return _random2.frandom();}
+//	int irandom2(int n) {return _random2.irandom(n);}
+//	float frandom2 (float lo, float hi) {return _random2.frandom(lo, hi);}
+//	int irandom2(int lo, int hi) {return _random2.irandom(lo, hi);}
 
 	void checkShoots();
+	float left() const {return -0.6;}
+	float right() const {return 0.6;}
+	float top() const {return 1.0;}
+	float bottom() const {return -1.0;}
+
 private:
 	bool event(QEvent *e);
 	void mousePressEvent(QMouseEvent *e);
@@ -107,6 +119,7 @@ private:
 	void addBullet(Bullet* bullet);
 	void deleteBullet(Bullet* bullet);
 	void createSplinters(Asteroid* asteroid);
+	Patrol* patrol;
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
