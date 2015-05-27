@@ -48,6 +48,7 @@
 #include "bullet.h"
 #include "asteroid.h"
 #include "patrol.h"
+#include "patrolbullet.h"
 View::View(QWidget *parent) :
 	QGLWidget(parent),
 	 shipDragging(false), bullets(0),asteroidAppearTime(0), nticks(0)
@@ -90,7 +91,7 @@ bool View::event(QEvent *e)
 		}
 
 		QTouchEvent* te = (QTouchEvent*) e;
-		QList<QTouchEvent::TouchPoint> tpoints = te->touchPoints();
+//		QList<QTouchEvent::TouchPoint> tpoints = te->touchPoints();
 //		if (etype == QEvent::TouchBegin)
 		//qDebug() << "Touch" << te->localPos().x() << e->localPos().y();
 		//if (etype == QEvent::TouchUpdate || )
@@ -113,7 +114,7 @@ bool View::event(QEvent *e)
 				default:
 					break;
 				}
-				s += QString("x=%1 y=%2       ").arg(p.pos().x()).arg(p.pos().y());
+				//s += QString("x=%1 y=%2       ").arg(p.pos().x()).arg(p.pos().y());
 			}
 			//qDebug() << s ;
 		}
@@ -146,7 +147,7 @@ void View::processMove(int x, int y)
 	{
 		shipDragging = true;
 		ship->setX(fx);
-		updateGL();
+		//updateGL();
 //		qDebug() << "posXY=" << e->localPos().x() << e->localPos().y() << "  ShipX=" << ship->X();
 	}
 }
@@ -198,9 +199,30 @@ void View::checkShoots()
 			patrol =0;
 			delete *bit;
 			bit = bullets.erase(bit);
+			goto nextbullet;
+
 		}
+		if (ship->isPointInside(&p))
+			breakShip();
 		nextbullet: ;
 	}
+}
+
+void View::patrolShoot(Patrol *_patrol)
+{
+	//float x = ship->X();
+	//float y = ship->Y();
+	float angle = atan2(ship->X() - _patrol->X(), ship->Y() - _patrol->Y());
+	PatrolBullet* bullet = new PatrolBullet(this, _patrol->X() , _patrol->Y() , angle);
+	bullet->init();
+	addBullet (bullet);
+}
+
+void View::breakShip()
+{
+	ship->die();
+	dieticks = 100;
+	nticks = 0;
 }
 
 void View::timerEvent(QTimerEvent *)
@@ -216,6 +238,11 @@ void View::timerEvent(QTimerEvent *)
 			for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
 				delete *bit;
 			bullets.clear();
+			if (patrol)
+			{
+				delete patrol;
+				patrol = 0;
+			}
 			_random1.reset();
 			_random2.reset();
 			ship->revive();
@@ -258,7 +285,7 @@ void View::timerEvent(QTimerEvent *)
 		bool pat = false;
 		if (!patrol)
 		{
-			if (_random1.frandom() <= 0.99905)
+			if (_random1.frandom() <= 0.3)
 			{
 				patrol = new Patrol (this);
 				patrol->init();
@@ -278,9 +305,7 @@ void View::timerEvent(QTimerEvent *)
 	{
 		if (ship->isIntersects(**ait))
 		{
-			ship->die();
-			dieticks = 100;
-			nticks = 0;
+			breakShip();
 			break;
 		}
 	}
@@ -345,6 +370,7 @@ void View::shoot(float angle)
 	float x = ship->X();
 	float y = ship->top();
 	Bullet* bullet = new Bullet(this, x,y,angle);
+	bullet->init();
 	addBullet (bullet);
 }
 

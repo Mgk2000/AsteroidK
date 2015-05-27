@@ -90,7 +90,9 @@ public:
 	float right() const {return 0.6;}
 	float top() const {return 1.0;}
 	float bottom() const {return -1.0;}
+	void patrolShoot (Patrol* _patrol);
 
+	void breakShip();
 private:
 	bool event(QEvent *e);
 	void mousePressEvent(QMouseEvent *e);

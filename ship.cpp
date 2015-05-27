@@ -15,7 +15,7 @@ void Ship::init()
 {
 	//FlyingObject::init();
 	x =0.f;
-	y=-0.5f;
+	y=-0.2f;
 	angle = 0.f;
 	rotateSpeed = 0.0f;
 	width = 0.07;

@@ -35,10 +35,10 @@ void Asteroid::initParams()
 {
 	x = random1().frandom(-1.0, 1.0);
 	angle =  random1().frandom(M_PI * 0.8, M_PI * 1.2);
-	speed = 0.001;
+	speed = 0.003;
 	//float qqq = sin(M_PI /6);
 	vx = speed* sin (angle);
-	r = random1().frandom(0.03, 0.06);
+	r = random1().frandom(0.06, 0.10);
 	y = 1.+0.5* r;
 	if (x * vx  > 0 )
 		vx = -vx;
@@ -84,6 +84,8 @@ void Asteroid::draw()
 	view->flyingprogram().setUniformValue("color", _color);
 	glLineWidth(2.0);
 	glDrawArrays(GL_LINE_LOOP, 0, nvertices);
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 }
 
 bool Asteroid::isPointInside(Point *p) const
@@ -131,7 +133,7 @@ Splinter::~Splinter()
 void Splinter::init(const Asteroid &parent, float fi)
 {
 //	float rr =
-	r = parent.R() /3.;
+	r = parent.R() /2.;
 	x = parent.X() + parent.R() * cos(fi);
 	y = parent.Y() + parent.R() * sin(fi);
 	float dv = 0.001;

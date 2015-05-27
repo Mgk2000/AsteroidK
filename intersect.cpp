@@ -35,8 +35,8 @@ bool isInsideTriangle(Point *p, Point *p1, Point *p2, Point *p3)
 	if (d1*d2 < 0) return false;
 	float d3 = (p3->x - p->x) * (p1->y - p3->y) - (p1->x - p3->x) * (p3->y - p->y);
 	bool b = d2*d3>=0;
-	if (b)
-		qDebug() << b;
+//	if (b)
+//		qDebug() << b;
 	return b;
 }
 

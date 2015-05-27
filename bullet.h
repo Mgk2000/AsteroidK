@@ -13,6 +13,7 @@ public:
 	void draw();
 	Point top() const;
 	bool out() const;
+	virtual bool isMy() const {return true;}
 private:
 	float length;
 };

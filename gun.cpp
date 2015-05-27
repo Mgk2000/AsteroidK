@@ -41,7 +41,7 @@ bool Gun::touched(float _x, float _y, float* fi) const
 	float _r = sqrt(sqr(_x) + sqr (_y-y));
 	float dr = r-_r;
 	bool b = dr < delta && dr > -delta;
-	qDebug() << "gun touched=" << b;
+	//qDebug() << "gun touched=" << b;
 	if (b)
 	{
 		*fi = (float) atan2(_x,_y-y);
@@ -64,6 +64,8 @@ void Gun::draw()
 	view->flyingprogram().setUniformValue("color", color());
 	glLineWidth(3.0);
 	glDrawArrays(GL_LINE_STRIP, 0, NP);
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 
 }
 

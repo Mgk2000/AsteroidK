@@ -58,6 +58,8 @@ void Patrol::draw()
 	view->flyingprogram().setUniformValue("color", color());
 	glLineWidth(2.0);
 	glDrawArrays(GL_LINE_LOOP, 0, NP);
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 	//return;
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[1]);
 	offset = 0;
@@ -69,11 +71,23 @@ void Patrol::draw()
 	view->flyingprogram().setUniformValue("color", color());
 	glLineWidth(2.0);
 	glDrawArrays(GL_LINES, 0, 2);
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 }
 
 bool Patrol::out() const
 {
 	return x< view->left()-0.2 || x > view->right() + 0.2;
+}
+
+void Patrol::moveStep()
+{
+	FlyingObject::moveStep();
+	float dw = 0.1;
+	if ((x>-view->left() && x<-view->left()+dw) ||
+		(x>-view->right()-dw && x<-view->right()))
+		view->patrolShoot(this);
+
 }
 
 void Patrol::getCurrentCoords(Point *_vertices, int *_nvertices) const

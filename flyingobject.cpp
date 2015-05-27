@@ -3,36 +3,35 @@
 #include "math.h"
 #include "intersect.h"
 
-FlyingObject::FlyingObject(View* _view, int _nbos): nbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+FlyingObject::FlyingObject(View* _view, int _nbos): nvbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
 	rotateSpeed(0.0f), live(0), angle(0.f), speed (0.f)
 {
 	initializeGLFunctions();
-	if (nbos)
+	if (nvbos)
 	{
-		vboIds = new uint[nbos];
-		glGenBuffers(nbos, vboIds);
+		vboIds = new uint[nvbos];
+		glGenBuffers(nvbos, vboIds);
 	}
 }
 
 FlyingObject::FlyingObject(View *_view, int _nbos, float _x, float _y, float _speed, float _angle):
-	nbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
+	nvbos (_nbos), vertices(0), indices(0), nvertices(0), nindices(0), view(_view),
 	rotateSpeed(0.0f), live(0), angle(_angle), speed (_speed), x(_x), y(_y)
 {
 	initializeGLFunctions();
-	if (nbos)
+	if (nvbos)
 	{
-		vboIds = new uint[nbos];
-		glGenBuffers(nbos, vboIds);
+		vboIds = new uint[nvbos];
+		glGenBuffers(nvbos, vboIds);
 	}
-	vx = speed* sin(angle);
-	vy = speed* cos(angle);
+
 }
 
 FlyingObject::~FlyingObject()
 {
-	if (nbos)
+	if (nvbos)
 	{
-		glDeleteBuffers(2, vboIds);
+		glDeleteBuffers(nvbos, vboIds);
 		delete[] vboIds;
 	}
 	if (vertices)
@@ -43,37 +42,41 @@ FlyingObject::~FlyingObject()
 
 void FlyingObject::init()
 {
-//	initializeGLFunctions();
-//	glGenBuffers(2, vboIds);
-
+	vx = speed* sin(angle);
+	vy = speed* cos(angle);
 }
 
 void FlyingObject::draw()
 {
+	int err;
 	QMatrix4x4 matrix3;
 	matrix3.translate(x, y, 0);
 	bool b = view->flyingprogram().bind();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix3);
-//	GLint err = glGetError();
+
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 
 	// Offset for position
 	quintptr offset = 0;
 
 	// Tell OpenGL programmable pipeline how to locate vertex position data
 	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	view->flyingprogram().enableAttributeArray(vertexLocation);
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	view->flyingprogram().setUniformValue("color", color());
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
 	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
-//	err = glGetError();
+	err= glGetError(); if (err) qDebug() << "glGetError=" << err << "nindices=" << nindices;
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 //	err= err;
 //	QString qlog = view->flyingprogram().log();
 //	qlog = qlog;

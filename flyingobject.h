@@ -34,7 +34,7 @@ public:
 protected:
 	float x,y,angle;
 	uint* vboIds;
-	int nbos;
+	int nvbos;
 	//QVector3D* vertices;
 	Point* vertices;
 	int nvertices;

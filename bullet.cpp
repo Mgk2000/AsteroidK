@@ -4,7 +4,7 @@
 Bullet::Bullet(View* view, float _x, float _y, float _angle) : FlyingObject(view, 1, _x, _y, 0.02f, _angle)
 
 {
-	init();
+
 }
 
 Bullet::~Bullet()
@@ -24,6 +24,7 @@ void Bullet::init()
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
 	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
 	_color = QVector4D (0.9, 0.9, 0.0, 1.0);
+	FlyingObject::init();
 
 }
 
@@ -43,6 +44,8 @@ void Bullet::draw()
 	view->flyingprogram().setUniformValue("color", _color);
 	glLineWidth(1.0);
 	glDrawArrays(GL_LINE_STRIP, 0, 2);
+	view->flyingprogram().disableAttributeArray(vertexLocation);
+
 }
 
 Point Bullet::top() const
