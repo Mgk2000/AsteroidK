@@ -11,5 +11,5 @@ void PatrolBullet::init()
 	Bullet::init();
 	speed = speed*0.5;
 	FlyingObject::init();
-	_color = QVector4D (1, 0, 0, 1);
+	_color = Point4D (1, 0, 0, 1);
 }

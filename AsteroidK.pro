@@ -14,7 +14,8 @@ SOURCES += main.cpp \
 	asteroid.cpp \
 	intersect.cpp \
 	patrol.cpp \
-	patrolbullet.cpp
+	patrolbullet.cpp \
+    mat4.cpp
 
 qtHaveModule(opengl) {
 	QT += opengl
@@ -23,9 +24,7 @@ qtHaveModule(opengl) {
 
 	HEADERS +=
 
-	RESOURCES += \
-		shaders.qrc \
-		textures.qrc
+	RESOURCES +=
 }
 
 # install
@@ -35,7 +34,6 @@ INSTALLS += target
 
 OTHER_FILES += \
 	KVShader.vsh \
-	KFShader.fsh \
 	vflyingshader.vsh \
 	fflyingshader.fsh
 
@@ -51,4 +49,5 @@ HEADERS += \
 	intersect.h \
 	points.h \
 	patrol.h \
-	patrolbullet.h
+	patrolbullet.h \
+    mat4.h

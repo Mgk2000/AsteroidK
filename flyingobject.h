@@ -1,13 +1,11 @@
 #ifndef FLYINGOBJECT_H
 #define FLYINGOBJECT_H
-#include <QVector2D>
-#include <QVector3D>
-#include <QVector4D>
 #include <QGLFunctions>
 #include <QGLShaderProgram>
 #include "points.h"
 class Random;
 class View;
+class Mat4;
 class FlyingObject : protected QGLFunctions
 {
 public:
@@ -24,9 +22,9 @@ public:
 	void swapColor();
 	void setXY(float _x, float _y) {x = _x; y=_y;}
 	void setSpeedXY(float _vx, float _vy) {vx = _vx; vy=_vy;}
-	void setColor(float r , float g , float b) {_color = QVector4D (r,g,b,1.0);}
-	void setColor( const QVector4D&  __color) {_color = __color;}
-	virtual const QVector4D&  color() const {return _color;}
+	void setColor(float r , float g , float b) {_color = Point4D (r,g,b,1.0);}
+	void setColor( const Point4D&  __color) {_color = __color;}
+	virtual const Point4D&  color() const {return _color;}
 	virtual void getCurrentCoords (Point * _vertices, int* _nvertices ) const;
 	bool isIntersects(const FlyingObject& obj)  const;
 	virtual bool isPointInside( Point* p) const;
@@ -35,12 +33,11 @@ protected:
 	float x,y,angle;
 	uint* vboIds;
 	int nvbos;
-	//QVector3D* vertices;
 	Point* vertices;
 	int nvertices;
 	GLushort* indices;
 	int nindices;
-	QVector4D _color;
+	Point4D _color;
 	void fill_vbos();
 	View* view;
 	float rotateSpeed;
@@ -50,6 +47,9 @@ protected:
 	float r;
 	Random &random1() const;
 	Random &random2() const;
+	void drawTriangles();
+	void drawLines(int how, uint vbo, int npoints, const Point4D& color, float _width, float angle = 0.0);
+	void showMatrix (Mat4& m);
 };
 
 

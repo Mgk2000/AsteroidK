@@ -43,14 +43,13 @@
 
 #include <QGLWidget>
 #include <QGLFunctions>
-#include <QMatrix4x4>
-#include <QQuaternion>
-#include <QVector2D>
 #include <QBasicTimer>
 #include <QGLShaderProgram>
 #include <list>
 #include "points.h"
 #include "random.h"
+#include "mat4.h"
+
 class Ship;
 class Gun;
 class Bullet;
@@ -71,20 +70,11 @@ class View : public QGLWidget, protected QGLFunctions
 public:
 	explicit View(QWidget *parent = 0);
 	~View();
-	QGLShaderProgram& flyingprogram() {return _flyingprogram;}
-	QMatrix4x4 projection;
+	//QGLShaderProgram& flyingprogram() {return _flyingprogram;}
+	Mat4 projection1;
 	float fieldWidth() const {return aspect;}
 	Random& random1() {return _random1;}
 	Random& random2() {return _random2;}
-//	float frandom1() {return _random1.frandom();}
-//	int irandom1(int n) {return _random1.irandom(n);}
-//	float frandom1 (float lo, float hi) {return _random1.frandom(lo, hi);}
-//	int irandom1(int lo, int hi) {return _random1.irandom(lo, hi);}
-//	float frandom2() {return _random2.frandom();}
-//	int irandom2(int n) {return _random2.irandom(n);}
-//	float frandom2 (float lo, float hi) {return _random2.frandom(lo, hi);}
-//	int irandom2(int lo, int hi) {return _random2.irandom(lo, hi);}
-
 	void checkShoots();
 	float left() const {return -0.6;}
 	float right() const {return 0.6;}
@@ -93,6 +83,10 @@ public:
 	void patrolShoot (Patrol* _patrol);
 
 	void breakShip();
+	int matrixlocation() const {return _matrixlocation;}
+	int colorlocation() const {return _colorlocation;}
+	int vertexlocation() const {return _vertexlocation;}
+	GLuint program() const {return _program;}
 private:
 	bool event(QEvent *e);
 	void mousePressEvent(QMouseEvent *e);
@@ -108,11 +102,11 @@ private:
 	void initializeGL();
 	void resizeGL(int w, int h);
 	void paintGL();
-
+	GLuint createShader(GLenum shaderType, const char* src);
+	GLuint createProgram(const char *pVertexSource, const char *pFragmentSource);
 	void initShaders();
 	void screenToView(int x, int y, float* fx, float * fy) const;
 	void shoot (float angle);
-	//BulletInfo* bullets;
 	std::list <Asteroid*> asteroids;
 	void addAsteroid(Asteroid* asteroid);
 	void deleteAsteroid(Asteroid* asteroid);
@@ -122,9 +116,11 @@ private:
 	void deleteBullet(Bullet* bullet);
 	void createSplinters(Asteroid* asteroid);
 	Patrol* patrol;
+
 private:
 	QBasicTimer timer;
 	QGLShaderProgram  _flyingprogram;
+	GLuint _program;
 
 //	GLuint texture;
 
@@ -138,6 +134,7 @@ private:
 	Random _random1, _random2;
 	int nticks;
 	int dieticks;
+	int _matrixlocation, _vertexlocation, _colorlocation;
 };
 
 #endif // VIEW_H

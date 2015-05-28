@@ -18,7 +18,7 @@ Gun::~Gun()
 
 void Gun::init()
 {
-	QVector3D points[NP];
+	Point points[NP];
 	float w = 0.6;
 	float h = 0.0;
 	y = - 1 - h;
@@ -28,11 +28,11 @@ void Gun::init()
 	for (int i =0; i< NP; i++)
 	{
 		double fi = fi0 + fi1 * i / (NP-1);
-		points [i] = QVector3D (r * cos(fi) ,y+ r * sin(fi), 0);
+		points [i] = Point (r * cos(fi) , r * sin(fi), 0);
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, NP * sizeof(QVector3D), points, GL_STATIC_DRAW);
-	_color = QVector4D (0.5, 0.5, 0.0, 1.0);
+	glBufferData(GL_ARRAY_BUFFER, NP * sizeof(Point), points, GL_STATIC_DRAW);
+	_color = Point4D (0.5, 0.5, 0.0, 1.0);
 }
 
 bool Gun::touched(float _x, float _y, float* fi) const
@@ -51,21 +51,6 @@ bool Gun::touched(float _x, float _y, float* fi) const
 
 void Gun::draw()
 {
-//	QMatrix4x4 matrix3;
-	view->flyingprogram().bind();
-	view->flyingprogram().setUniformValue("mvp_matrix", view->projection /* matrix3*/);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	quintptr offset = 0;
-
-	// Tell OpenGL programmable pipeline how to locate vertex position data
-	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	view->flyingprogram().enableAttributeArray(vertexLocation);
-	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	view->flyingprogram().setUniformValue("color", color());
-	glLineWidth(3.0);
-	glDrawArrays(GL_LINE_STRIP, 0, NP);
-	view->flyingprogram().disableAttributeArray(vertexLocation);
-
-
+	drawLines(GL_LINE_STRIP, vboIds[0], NP, color(), 4.0);
 }
 

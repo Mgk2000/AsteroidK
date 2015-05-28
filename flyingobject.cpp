@@ -48,38 +48,6 @@ void FlyingObject::init()
 
 void FlyingObject::draw()
 {
-	int err;
-	QMatrix4x4 matrix3;
-	matrix3.translate(x, y, 0);
-	bool b = view->flyingprogram().bind();
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix3);
-
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-
-	// Offset for position
-	quintptr offset = 0;
-
-	// Tell OpenGL programmable pipeline how to locate vertex position data
-	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	view->flyingprogram().enableAttributeArray(vertexLocation);
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	view->flyingprogram().setUniformValue("color", color());
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err;
-	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
-	err= glGetError(); if (err) qDebug() << "glGetError=" << err << "nindices=" << nindices;
-	view->flyingprogram().disableAttributeArray(vertexLocation);
-
-//	err= err;
-//	QString qlog = view->flyingprogram().log();
-//	qlog = qlog;
 }
 
 void FlyingObject::moveStep()
@@ -91,7 +59,7 @@ void FlyingObject::moveStep()
 
 void FlyingObject::swapColor()
 {
-	_color = QVector4D (1-_color.x(), 1-_color.y(), 1- _color.z(), 1);
+	_color = Point4D (1-_color.x(), 1-_color.y(), 1- _color.z(), 1);
 }
 
 void FlyingObject::getCurrentCoords(Point *_vertices, int *_nvertices) const
@@ -108,7 +76,7 @@ void FlyingObject::fill_vbos()
 {
 	// Transfer vertex data to VBO 0
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(Point), vertices, GL_STATIC_DRAW);
 
 	// Transfer index data to VBO 1
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
@@ -123,6 +91,56 @@ Random& FlyingObject::random1() const
 Random &FlyingObject::random2() const
 {
 	return view->random2();
+}
+
+void FlyingObject::drawTriangles ()
+{
+	Mat4 _matrix1;
+	_matrix1.translate(x, y, 0);
+	_matrix1 = view->projection1 * _matrix1;
+//	glUseProgram(view->flyingprogram().programId());
+	glUseProgram(view->program());
+	glUniformMatrix4fv(view->matrixlocation(), 1, false, (const GLfloat*) &_matrix1);
+	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
+	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vboIds[1]);
+	glEnableVertexAttribArray(view->vertexlocation());
+	glVertexAttribPointer(view->vertexlocation(), 3, GL_FLOAT, GL_FALSE, sizeof(Point), (const void *) 0);
+	Point4D col = color();
+	glUniform4fv(view->colorlocation() ,1 , (GLfloat*) &col );
+	glDrawElements(GL_TRIANGLES, nindices , GL_UNSIGNED_SHORT, 0);
+	glDisableVertexAttribArray(view->vertexlocation());
+}
+
+void FlyingObject::drawLines(int how, uint vbo, int npoints, const Point4D& _color, float _width, float angle)
+{
+	Mat4 _matrix1;
+	_matrix1.translate(x, y, 0);
+	_matrix1 = view->projection1 * _matrix1;
+	//	glUseProgram(view->flyingprogram().programId());
+		glUseProgram(view->program());
+	if (angle !=0.0)
+		_matrix1.rotateZ(angle);
+	glUniformMatrix4fv(view->matrixlocation(), 1, false, (const GLfloat*) &_matrix1);
+	glBindBuffer(GL_ARRAY_BUFFER, vbo);
+	glEnableVertexAttribArray(view->vertexlocation());
+	glVertexAttribPointer(view->vertexlocation(), 3, GL_FLOAT, GL_FALSE, sizeof(Point), (const void *) 0);
+	Point4D col = _color;
+	glUniform4fv(view->colorlocation() ,1 , (GLfloat*) &col );
+	glLineWidth(_width);
+	glDrawArrays(how, 0, npoints);
+	glDisableVertexAttribArray(view->vertexlocation());
+}
+
+void FlyingObject::showMatrix(Mat4 &m)
+{
+	for (int i=0; i<4; i++)
+	{
+		QString s;
+		for (int j=0; j< 4; j++)
+			s=s+QString("%1 ").arg(m.m[i][j]);
+		qDebug() << s;
+	}
+	qDebug() << "-----";
 }
 bool FlyingObject::isIntersects(const FlyingObject& obj) const
 {

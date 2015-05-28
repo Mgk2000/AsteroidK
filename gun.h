@@ -1,9 +1,8 @@
 #ifndef GUN_H
 #define GUN_H
-#include <QVector2D>
-#include <QVector3D>
+
 #include <QGLFunctions>
-#include <QGLShaderProgram>
+//#include <QGLShaderProgram>
 #include "flyingobject.h"
 
 class View;

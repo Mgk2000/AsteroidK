@@ -17,13 +17,14 @@ public:
 	void die();
 	void revive();
 	bool dead() {return _dead;}
-	const QVector4D&  color() const;
+	const Point4D&  color() const;
+	void draw();
 private:
 //	bool isPointInside( Point* p) const;
 	float width;
 	float height;
 	bool _dead;
-	QVector4D alivecolor, deadcolor;
+	Point4D alivecolor, deadcolor;
 
 };
 

@@ -22,30 +22,15 @@ void Bullet::init()
 	nvertices = 2;
 
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
-	_color = QVector4D (0.9, 0.9, 0.0, 1.0);
+	glBufferData(GL_ARRAY_BUFFER, 2 * sizeof(Point), vertices, GL_STATIC_DRAW);
+	_color = Point4D (0.9, 0.9, 0.0, 1.0);
 	FlyingObject::init();
 
 }
 
 void Bullet::draw()
 {
-	QMatrix4x4 matrix;
-	matrix.translate(x, y, 0);
-	bool b = view->flyingprogram().bind();
-	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	quintptr offset = 0;
-
-	// Tell OpenGL programmable pipeline how to locate vertex position data
-	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	view->flyingprogram().enableAttributeArray(vertexLocation);
-	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	view->flyingprogram().setUniformValue("color", _color);
-	glLineWidth(1.0);
-	glDrawArrays(GL_LINE_STRIP, 0, 2);
-	view->flyingprogram().disableAttributeArray(vertexLocation);
-
+	drawLines(GL_LINE_STRIP, vboIds[0], 2, color(), 2.0);
 }
 
 Point Bullet::top() const

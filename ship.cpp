@@ -34,8 +34,8 @@ void Ship::init()
 	for (int i = 0; i< 6; i++)
 		indices[i] = i;
 	nindices = 6;
-	deadcolor = QVector4D(1,0,0,1);
-	alivecolor =  QVector4D(0.0, 0.7, 0.7, 1.0);
+	deadcolor = Point4D(1,0,0,1);
+	alivecolor =  Point4D(0.0, 0.7, 0.7, 1.0);
 	fill_vbos();
 
 }
@@ -91,12 +91,18 @@ void Ship::revive()
 	x=0;
 }
 
-const QVector4D &Ship::color() const
+const Point4D &Ship::color() const
 {
 	if (_dead)
 		return deadcolor;
 	else
 		return alivecolor;
+}
+
+void Ship::draw()
+{
+	drawTriangles();
+	//FlyingObject::draw();
 }
 
 

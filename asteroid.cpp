@@ -63,29 +63,13 @@ void Asteroid::applyParams()
 		rotatedVertices[i] = vertices[i];
 	}
 	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(QVector3D), vertices, GL_STATIC_DRAW);
-	_color = QVector4D (0.3 + random1().frandom()*0.7 , 0.3 + random1().frandom()*0.7, 0.3 + random1().frandom()*0.7, 1.0);
+	glBufferData(GL_ARRAY_BUFFER, nvertices * sizeof(Point), vertices, GL_STATIC_DRAW);
+	_color = Point4D (0.3 + random1().frandom()*0.7 , 0.3 + random1().frandom()*0.7, 0.3 + random1().frandom()*0.7, 1.0);
 }
 
 void Asteroid::draw()
 {
-	QMatrix4x4 matrix;
-	matrix.translate(x, y, 0);
-	matrix.rotate(rotateAngle, 0.0, 0.0, 1.0);
-	bool b = view->flyingprogram().bind();
-	view->flyingprogram().setUniformValue("mvp_matrix", view->projection * matrix);
-	glBindBuffer(GL_ARRAY_BUFFER, vboIds[0]);
-	quintptr offset = 0;
-
-	// Tell OpenGL programmable pipeline how to locate vertex position data
-	int vertexLocation = view->flyingprogram().attributeLocation("aVertexPosition");
-	view->flyingprogram().enableAttributeArray(vertexLocation);
-	glVertexAttribPointer(vertexLocation, 3, GL_FLOAT, GL_FALSE, sizeof(QVector3D), (const void *)offset);
-	view->flyingprogram().setUniformValue("color", _color);
-	glLineWidth(2.0);
-	glDrawArrays(GL_LINE_LOOP, 0, nvertices);
-	view->flyingprogram().disableAttributeArray(vertexLocation);
-
+	drawLines(GL_LINE_LOOP,vboIds[0],nvertices,color(), 5.0);
 }
 
 bool Asteroid::isPointInside(Point *p) const
