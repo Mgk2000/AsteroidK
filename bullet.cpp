@@ -1,7 +1,10 @@
 #include "bullet.h"
 #include <math.h>
 #include "view.h"
-Bullet::Bullet(View* view, float _x, float _y, float _angle) : FlyingObject(view, 1, _x, _y, 0.02f, _angle)
+
+#include "logmsg.h"
+Bullet::Bullet(View* view, float _x, float _y, float _angle)
+    : FlyingObject(view, 1, _x, _y, 1.0f, _angle)
 
 {
 
@@ -40,5 +43,15 @@ Point Bullet::top() const
 
 bool Bullet::out() const
 {
-	return x <-0.6 || x > 0.6 || y > 1.0;
+    return x <-0.6 || x > 0.6 || y > 1.0;
+}
+
+void Bullet::moveStep(float delta)
+{
+    float sx = x;
+    float sy = y;
+    FlyingObject::moveStep(delta);
+//    qDebug() << "bullet dx, dy=" << x-sx << y-sy;
+//    LOGD("bullet dx, dy= %f %f", x-sx , y-sy);
+
 }

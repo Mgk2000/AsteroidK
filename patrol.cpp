@@ -1,7 +1,6 @@
 #include "patrol.h"
 #include "view.h"
 #include <math.h>
-#include <QDebug>
 
 Patrol::Patrol(View* _view) : FlyingObject (_view, 2)
 {
@@ -18,7 +17,7 @@ void Patrol::init()
 	bool left  = random1().frandom() <=0.5;
 	y= 0.8;
 	x = left ? view->left()-0.1 : view->right() + 0.1;
-	vx = left ? 0.003 : -0.003;
+    vx = left ? 0.2 : -0.2;
 	vy =0;
 	r = 0.05;
 	Point3D points[NP];
@@ -49,9 +48,9 @@ bool Patrol::out() const
 	return x< view->left()-0.2 || x > view->right() + 0.2;
 }
 
-void Patrol::moveStep()
+void Patrol::moveStep(float delta)
 {
-	FlyingObject::moveStep();
+    FlyingObject::moveStep(delta);
 	float dw = 0.1;
 	if ((x>-view->left() && x<-view->left()+dw) ||
 		(x>-view->right()-dw && x<-view->right()))

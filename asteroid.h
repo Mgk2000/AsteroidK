@@ -14,7 +14,7 @@ public:
 	void draw();
 	bool isPointInside( Point* p) const;
 	bool out() const;
-	void moveStep();
+    void moveStep(float delta);
 	virtual bool isSplinter() {return false;}
 	float R() const {return r;}
 	void getCurrentCoords (Point * vertices, int* nvertices ) const;

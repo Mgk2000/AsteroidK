@@ -2,8 +2,7 @@
 #include <math.h>
 #include "view.h"
 #include "math_helper.h"
-#include <QDebug>
-
+#include "ship.h"
 
 Gun::Gun(View* _view) :  FlyingObject(_view, 1)
 {
@@ -22,7 +21,7 @@ void Gun::init()
 	float w = 0.6;
 	float h = 0.0;
 	y = - 1 - h;
-	r = sqrt(h * h + w * w);
+    r = sqrt(h * h + w * w)* 0.7;
 	double fi0 = atan2(h, w);
 	double fi1 = M_PI - 2* fi0;
 	for (int i =0; i< NP; i++)
@@ -38,10 +37,9 @@ void Gun::init()
 bool Gun::touched(float _x, float _y, float* fi) const
 {
 	const float delta = 0.15;
-	float _r = sqrt(sqr(_x) + sqr (_y-y));
+    float _r = sqrt(sqr(_x-x) + sqr (_y-y));
 	float dr = r-_r;
 	bool b = dr < delta && dr > -delta;
-	//qDebug() << "gun touched=" << b;
 	if (b)
 	{
 		*fi = (float) atan2(_x,_y-y);
@@ -51,6 +49,8 @@ bool Gun::touched(float _x, float _y, float* fi) const
 
 void Gun::draw()
 {
+    x=view->getShip()->X();
+    y=view->getShip()->Y() + view->getShip()->height();
 	drawLines(GL_LINE_STRIP, vboIds[0], NP, color(), 4.0);
 }
 

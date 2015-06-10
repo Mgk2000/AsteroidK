@@ -37,11 +37,10 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
-
+#ifndef _QT_
+#include <jni.h>
+#endif
 #include "view.h"
-
-#include <QMouseEvent>
-
 #include <math.h>
 #include "ship.h"
 #include "gun.h"
@@ -49,16 +48,13 @@
 #include "asteroid.h"
 #include "patrol.h"
 #include "patrolbullet.h"
-View::View(QWidget *parent) :
-	QGLWidget(parent),
-	 shipDragging(false), bullets(0),asteroidAppearTime(0), nticks(0)
+View::View() :
+     shipDragging(false), bullets(0),asteroidAppearTime(0), nticks(0), period(12)
 {
 //	setAttribute(Qt::WA_PaintOnScreen);
 //	setAttribute(Qt::WA_NoSystemBackground);
 //	setAutoBufferSwap(false);
 //	setHeight(800);
-	this->setGeometry(geometry().x() + 100, geometry().y() +200, 480, 800);
-	setAttribute(Qt::WA_AcceptTouchEvents);
 
 }
 
@@ -66,78 +62,7 @@ View::~View()
 {
 }
 
-bool View::event(QEvent *e)
-{
-	QEvent::Type etype = e->type();
-	if (etype == QEvent::TouchBegin ||
-		etype == QEvent::TouchUpdate ||
-		etype == QEvent::TouchEnd ||
-		etype == QEvent::TouchCancel
-			)
-	{
-		QString s;
-		switch (etype)
-		{
-		case QEvent::TouchBegin:
-			s = "Begin "; break;
-//		case QEvent::TouchUpdate:
-//			s = "Update "; break;
-//		case QEvent::TouchEnd:
-//			s = "End "; break;
-//		case QEvent::TouchCancel:
-//			s = "Cancel "; break;
-		default:
-			break;
-		}
-
-		QTouchEvent* te = (QTouchEvent*) e;
-//		QList<QTouchEvent::TouchPoint> tpoints = te->touchPoints();
-//		if (etype == QEvent::TouchBegin)
-		//qDebug() << "Touch" << te->localPos().x() << e->localPos().y();
-		//if (etype == QEvent::TouchUpdate || )
-		{
-			QList<QTouchEvent::TouchPoint> tpl = te->touchPoints();
-			for (int i=0; i< tpl.count();i++)
-			{
-				QTouchEvent::TouchPoint p = tpl[i];
-				switch (p.state())
-				{
-				case Qt::TouchPointPressed:
-					processPress(p.pos().x(),  p.pos().y());
-					break;
-				case Qt::TouchPointMoved:
-					processMove(p.pos().x(),  p.pos().y());
-					break;
-				case Qt::TouchPointReleased:
-					processRelease(p.pos().x(),  p.pos().y());
-					break;
-				default:
-					break;
-				}
-				//s += QString("x=%1 y=%2       ").arg(p.pos().x()).arg(p.pos().y());
-			}
-			//qDebug() << s ;
-		}
-		e->accept();
-		return true;
-	}
-	return QGLWidget::event(e);
-}
-
 //! [0]
-
-void View::mousePressEvent(QMouseEvent *e)
-{
-	processPress(e->localPos().x(),e->localPos().y());
-}
-void View::mouseReleaseEvent(QMouseEvent *e)
-{
-	processRelease(e->localPos().x(),e->localPos().y());
-}
-void View::mouseMoveEvent(QMouseEvent *e)
-{
-	processMove(e->localPos().x(),e->localPos().y());
-}
 
 void View::processMove(int x, int y)
 {
@@ -222,11 +147,43 @@ void View::breakShip()
 {
 	ship->die();
 	dieticks = 100;
-	nticks = 0;
+    nticks = 0;
+//    currtime =0;
 }
 
-void View::timerEvent(QTimerEvent *)
+void View::processTouches()
 {
+    for (std::list<TouchEvent>::const_iterator it2 = touches.begin();
+         it2 != touches.end(); it2++)
+        {
+            const TouchEvent &te = *it2;
+           // qDebug() << "processTouch" <<te.type << te.x <<  te.y;
+
+            switch(te.type)
+            {
+            case TouchPointPressed:
+                processPress(te.x, te.y);
+                break;
+            case TouchPointMoved:
+                processMove(te.x, te.y);
+            default:
+                break;
+            }
+        }
+    touches.clear();
+}
+
+void View::timerEvent(long long currTime)
+{
+    if (nticks ==0)
+    {
+        startTime = currTime;
+        lastTime = currTime;
+    }
+    float delta = (float)(currTime - lastTime)/1000;
+    nticks = (currTime-startTime) / period;
+    lastTime = currTime;
+//    qDebug() << "time=" << currTime-startTime << "delta=" << delta;
 	if (ship->dead())
 	{
 		dieticks --;
@@ -251,10 +208,10 @@ void View::timerEvent(QTimerEvent *)
 		else
 			return;
 	}
-
+    processTouches();
 	for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
 	{
-		(*bit)->moveStep();
+        (*bit)->moveStep(delta);
 		if ((*bit)->out() )
 		{
 			delete *bit;
@@ -263,7 +220,7 @@ void View::timerEvent(QTimerEvent *)
 	}
 	for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
 	{
-		(*ait)->moveStep();
+        (*ait)->moveStep(delta);
 		if ((*ait)->out() )
 		{
 			delete *ait;
@@ -272,7 +229,7 @@ void View::timerEvent(QTimerEvent *)
 	}
 	if (patrol)
 	{
-		patrol->moveStep();
+        patrol->moveStep(delta);
 		if (patrol->out())
 		{
 			delete patrol;
@@ -280,7 +237,7 @@ void View::timerEvent(QTimerEvent *)
 		}
 	}
 	checkShoots();
-	if (nticks == asteroidAppearTime)
+    if (nticks >= asteroidAppearTime)
 	{
 		bool pat = false;
 		if (!patrol)
@@ -298,7 +255,7 @@ void View::timerEvent(QTimerEvent *)
 			asteroid->init();
 			addAsteroid(asteroid);
 		}
-		asteroidAppearTime = nticks + random1().irandom(300, 1000) /log10 (nticks+10);
+		asteroidAppearTime = nticks + random1().irandom(300, 1000) /log10 (nticks+10.0);
 		//asteroidAppearTime = 0;
 	}
 	for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
@@ -309,29 +266,20 @@ void View::timerEvent(QTimerEvent *)
 			break;
 		}
 	}
-//	if (ship->dead())
-//	{
-//		for (std::list<Asteroid*> ::iterator ait = asteroids.begin(); ait != asteroids.end(); ait++)
-//			delete *ait;
-//		asteroids.clear();
-//		for (std::list<Bullet*> ::iterator bit = bullets.begin(); bit != bullets.end(); bit++)
-//			delete *bit;
-//		bullets.clear();
-//		_random1.reset();
-//		_random2.reset();
-//		dieticks = 300;
-//	}
-	updateGL();
+    paintGL();
 	nticks ++;
 }
 
 
-void View::initializeGL()
+bool View::initializeGL()
 {
+#ifdef _QT_
 	initializeGLFunctions();
+#endif
 	//qglClearColor(Qt::black);
 	glClearColor(0.0,0., 0.1, 1);
-	initShaders();
+    if (!initShaders())
+        return false;
 
 	// Enable depth buffer
 //	glEnable(GL_DEPTH_TEST);
@@ -345,11 +293,11 @@ void View::initializeGL()
 	gun = new Gun (this);
 	patrol = 0;
 	// Use QBasicTimer because its faster than QTimer
-	timer.start(12, this);
+    return true;
 }
 
 //! [3]
-void View::initShaders()
+bool View::initShaders()
 {
 //	if (!_flyingprogram.addShaderFromSourceFile(QGLShader::Vertex, ":/vflyingshader.vsh"))
 //		close();
@@ -381,18 +329,18 @@ void View::initShaders()
 	"	}\n";
 	_program = createProgram(vertexstr, fragstr);
 	if (!_program)
-		close();
+        return false;
 
 	_colorlocation = glGetUniformLocation(_program, "color");
 	_matrixlocation = glGetUniformLocation(_program, "mvp_matrix");
 	_vertexlocation = glGetAttribLocation(_program, "aVertexPosition");
-
+    return true;
 }
 
 void View::screenToView(int x, int y, float *fx, float *fy) const
 {
-	*fx = 2.0 * (x - width()/2) / width() * aspect;
-	*fy = - 2.0 * (y - height()/2) * 1.0 / height();
+    *fx = 2.0 * (x - width/2) / width * aspect;
+    *fy = - 2.0 * (y - height/2) * 1.0 / height;
 }
 
 void View::shoot(float angle)
@@ -495,6 +443,8 @@ void View::createSplinters(Asteroid* asteroid)
 
 void View::resizeGL(int w, int h)
 {
+    width = w;
+    height = h;
 	glViewport(0, 0, w, h);
 	aspect = w * 1.0 / h;
 	//aspect = 1;
@@ -520,6 +470,12 @@ void View::paintGL()
 		patrol->draw();
 
 
+}
+
+void View::onTouchEvent(int what, int x, int y)
+{
+    TouchEvent te (what, x, y);
+    touches.push_back(te);
 }
 
 GLuint View::createShader(GLenum shaderType, const char *src)

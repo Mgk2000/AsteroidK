@@ -15,15 +15,15 @@ void Ship::init()
 {
 	//FlyingObject::init();
 	x =0.f;
-	y=-0.2f;
+    y=-0.4f;
 	angle = 0.f;
 	rotateSpeed = 0.0f;
 	width = 0.07;
-	height = width * 1.5;
+	_height = width * 1.5;
 	vertices = new Point[6];
 	vertices[0] = Point (-width /2 , 0, 0);
 	vertices[1] = Point (width /2, 0, 0);
-	vertices[2] = Point (0 , height, 0);
+	vertices[2] = Point (0 , _height, 0);
 
 	vertices[3] = Point (-width /4, 0, 0);
 	vertices[4] = Point (0, -width/4, 0);
@@ -61,13 +61,13 @@ bool Ship::touched(float _x, float _y) const
 
 float Ship::top() const
 {
-	return y + height;
+	return y + _height;
 }
 
 void Ship::getCurrentCoords(Point *_vertices, int *_nvertices) const
 {
 	*_nvertices = 3;
-	_vertices[0] = Point(x, y+height,0 );
+	_vertices[0] = Point(x, y+_height,0 );
 	_vertices[1] = Point(x - width*0.5, y,0 );
 	_vertices[2] = Point(x + width*0.5, y,0 );
 

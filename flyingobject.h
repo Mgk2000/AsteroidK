@@ -1,12 +1,21 @@
 #ifndef FLYINGOBJECT_H
 #define FLYINGOBJECT_H
+#ifdef _QT_
 #include <QGLFunctions>
 #include <QGLShaderProgram>
+#else
+#include <jni.h>
+#include <GLES2/gl2.h>
+typedef  unsigned int uint;
+#endif
 #include "points.h"
 class Random;
 class View;
 class Mat4;
-class FlyingObject : protected QGLFunctions
+class FlyingObject
+#ifdef _QT_
+		: protected QGLFunctions
+#endif
 {
 public:
 	FlyingObject(View* _view, int _nbos);
@@ -14,7 +23,7 @@ public:
 	virtual ~FlyingObject();
 	virtual void init();
 	virtual void draw();
-	virtual void moveStep();
+    virtual void moveStep(float delta);
 	float X() const {return x;}
 	float Y() const {return y;}
 	float VX() const {return vx;}
@@ -28,7 +37,7 @@ public:
 	virtual void getCurrentCoords (Point * _vertices, int* _nvertices ) const;
 	bool isIntersects(const FlyingObject& obj)  const;
 	virtual bool isPointInside( Point* p) const;
-
+    static float v0;
 protected:
 	float x,y,angle;
 	uint* vboIds;

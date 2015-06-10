@@ -14,6 +14,7 @@ public:
 	Point top() const;
 	bool out() const;
 	virtual bool isMy() const {return true;}
+    void moveStep(float delta);
 private:
 	float length;
 };

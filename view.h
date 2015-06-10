@@ -41,10 +41,13 @@
 #ifndef VIEW_H
 #define VIEW_H
 
-#include <QGLWidget>
+//#include <QGLShaderProgram>
+#ifdef _QT_
 #include <QGLFunctions>
-#include <QBasicTimer>
-#include <QGLShaderProgram>
+#else
+#include <jni.h>
+#include <GLES2/gl2.h>
+#endif
 #include <list>
 #include "points.h"
 #include "random.h"
@@ -62,13 +65,29 @@ struct BulletInfo
 	Bullet* bullet;
 	BulletInfo* next;
 };
-
-class View : public QGLWidget, protected QGLFunctions
+enum TouchPointState {
+    TouchPointPressed    = 0x01,
+    TouchPointMoved      = 0x02,
+    TouchPointStationary = 0x04,
+    TouchPointReleased   = 0x08
+};
+struct TouchEvent
 {
-	Q_OBJECT
+    TouchEvent(int _type, int _x, int _y):
+        type((TouchPointState) _type), x(_x), y(_y){}
+TouchPointState type;
+int x, y;
+};
+
+class View
+#ifdef _QT_
+        : protected QGLFunctions
+#endif
+{
+//	Q_OBJECT
 
 public:
-	explicit View(QWidget *parent = 0);
+    explicit View();
 	~View();
 	//QGLShaderProgram& flyingprogram() {return _flyingprogram;}
 	Mat4 projection1;
@@ -87,24 +106,22 @@ public:
 	int colorlocation() const {return _colorlocation;}
 	int vertexlocation() const {return _vertexlocation;}
 	GLuint program() const {return _program;}
+    void processTouches();
+    void processMove (int x, int y);
+    void processPress (int x, int y);
+    void processRelease (int x, int y);
+    void timerEvent(long long currtime);
+    bool initializeGL();
+    void resizeGL(int w, int h);
+    void paintGL();
+    int width, height;
+    std::list<TouchEvent>touches;
+    void onTouchEvent(int what, int x, int y);
+    Ship* getShip() {return ship;}
 private:
-	bool event(QEvent *e);
-	void mousePressEvent(QMouseEvent *e);
-	void mouseReleaseEvent(QMouseEvent *e);
-	void mouseMoveEvent(QMouseEvent *);
-
-	void processMove (int x, int y);
-	void processPress (int x, int y);
-	void processRelease (int x, int y);
-
-	void timerEvent(QTimerEvent *e);
-
-	void initializeGL();
-	void resizeGL(int w, int h);
-	void paintGL();
 	GLuint createShader(GLenum shaderType, const char* src);
 	GLuint createProgram(const char *pVertexSource, const char *pFragmentSource);
-	void initShaders();
+    bool initShaders();
 	void screenToView(int x, int y, float* fx, float * fy) const;
 	void shoot (float angle);
 	std::list <Asteroid*> asteroids;
@@ -116,18 +133,10 @@ private:
 	void deleteBullet(Bullet* bullet);
 	void createSplinters(Asteroid* asteroid);
 	Patrol* patrol;
+    Ship* ship;
 
 private:
-	QBasicTimer timer;
-	QGLShaderProgram  _flyingprogram;
 	GLuint _program;
-
-//	GLuint texture;
-
-
-	QVector2D mousePressPosition;
-//	float shiftX;
-	Ship* ship;
 	Gun * gun;
 	float aspect;
 	bool shipDragging;
@@ -135,6 +144,9 @@ private:
 	int nticks;
 	int dieticks;
 	int _matrixlocation, _vertexlocation, _colorlocation;
+    long long lastTime;
+    long long startTime;
+    int period;
 };
 
 #endif // VIEW_H

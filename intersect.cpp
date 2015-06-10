@@ -1,6 +1,5 @@
 #include "intersect.h"
 #include <math.h>
-#include <QDebug>
 
 bool isInside(Point* p, Point* poly, Point* center, int npoints, bool relative)
 {

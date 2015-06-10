@@ -35,7 +35,7 @@ void Asteroid::initParams()
 {
 	x = random1().frandom(-1.0, 1.0);
 	angle =  random1().frandom(M_PI * 0.8, M_PI * 1.2);
-	speed = 0.003;
+    speed = 0.05;
 	//float qqq = sin(M_PI /6);
 	vx = speed* sin (angle);
 	r = random1().frandom(0.06, 0.10);
@@ -87,11 +87,11 @@ bool Asteroid::out() const
 	return b;
 }
 
-void Asteroid::moveStep()
+void Asteroid::moveStep(float delta)
 {
-	FlyingObject::moveStep();
-	rotateAngle = rotateSpeed * live;
-	rotatePoints(vertices, rotatedVertices, rotateAngle * M_PI /180, nvertices);
+    FlyingObject::moveStep(delta);
+    rotateAngle = rotateAngle + rotateSpeed * delta;
+    rotatePoints(vertices, rotatedVertices, rotateAngle , nvertices);
 }
 
 void Asteroid::getCurrentCoords(Point *_vertices, int *_nvertices) const
@@ -120,9 +120,9 @@ void Splinter::init(const Asteroid &parent, float fi)
 	r = parent.R() /2.;
 	x = parent.X() + parent.R() * cos(fi);
 	y = parent.Y() + parent.R() * sin(fi);
-	float dv = 0.001;
+    float dv = 0.05;
 	vx = parent.VX() + dv *  cos(fi);
-	vy = parent.VY() + dv *  cos(fi);
+    vy = parent.VY() + dv *  sin(fi);
 	_color = parent.color();
 	angle = atan2(vx, vy);
 	nvertices = random->irandom(4,8);

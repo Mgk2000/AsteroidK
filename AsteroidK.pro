@@ -1,5 +1,5 @@
 QT       += core gui widgets
-
+DEFINES += _QT_
 TARGET = cube
 TEMPLATE = app
 
@@ -15,7 +15,8 @@ SOURCES += main.cpp \
 	intersect.cpp \
 	patrol.cpp \
 	patrolbullet.cpp \
-    mat4.cpp
+    mat4.cpp \
+    widget.cpp
 
 qtHaveModule(opengl) {
 	QT += opengl
@@ -50,4 +51,6 @@ HEADERS += \
 	points.h \
 	patrol.h \
 	patrolbullet.h \
-    mat4.h
+    mat4.h \
+    widget.h \
+    logmsg.h

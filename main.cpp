@@ -41,9 +41,7 @@
 #include <QApplication>
 #include <QLabel>
 
-#ifndef QT_NO_OPENGL
-#include "view.h"
-#endif
+#include "widget.h"
 
 int main(int argc, char *argv[])
 {
@@ -51,7 +49,7 @@ int main(int argc, char *argv[])
 	app.setApplicationName("cube");
 	app.setApplicationVersion("0.1");
 #ifndef QT_NO_OPENGL
-	View widget;
+    Widget widget;
 	widget.show();
 #else
 	QLabel note("OpenGL Support required");

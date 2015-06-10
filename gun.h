@@ -1,7 +1,8 @@
 #ifndef GUN_H
 #define GUN_H
-
+#ifdef _QT_
 #include <QGLFunctions>
+#endif
 //#include <QGLShaderProgram>
 #include "flyingobject.h"
 

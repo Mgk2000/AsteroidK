@@ -19,10 +19,12 @@ public:
 	bool dead() {return _dead;}
 	const Point4D&  color() const;
 	void draw();
+    float height() const {return _height;}
+
 private:
 //	bool isPointInside( Point* p) const;
 	float width;
-	float height;
+    float _height;
 	bool _dead;
 	Point4D alivecolor, deadcolor;
 
