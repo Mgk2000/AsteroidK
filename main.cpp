@@ -40,6 +40,7 @@
 
 #include <QApplication>
 #include <QLabel>
+#include <QDesktopWidget>
 
 #include "widget.h"
 
@@ -50,6 +51,11 @@ int main(int argc, char *argv[])
 	app.setApplicationVersion("0.1");
 #ifndef QT_NO_OPENGL
     Widget widget;
+#ifdef WIN32
+    QRect r = widget.geometry();
+    r.moveCenter(QApplication::desktop()->availableGeometry().center());
+    widget.setGeometry(r);
+#endif
 	widget.show();
 #else
 	QLabel note("OpenGL Support required");

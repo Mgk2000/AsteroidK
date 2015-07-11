@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/textures">
+        <file>textures/Asteroidsurface.png</file>
+        <file>textures/BigBomb.png</file>
+        <file>textures/Diamond.png</file>
+        <file>textures/goldenkey.png</file>
+        <file>textures/LittleBomb.png</file>
+        <file>textures/Live.png</file>
+        <file>textures/SuperGun.png</file>
+        <file>textures/abcmono.bmp</file>
+    </qresource>
+</RCC>
